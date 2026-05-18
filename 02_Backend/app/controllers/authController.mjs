@@ -37,9 +37,7 @@ export const register = async (req, res) => {
 
         //New user
         const [result] = await pool.execute(
-            'INSERT INTO t_user (useUsername, useEmail, usePasswordHash) VALUES (?, ?, ?)',
-            [username, email, hashed]
-        );
+            'INSERT INTO t_user (useUsername, useEmail, usePasswordHash) VALUES (?, ?, ?)', [username, email, hashed]);
 
         // Créer les préférences
         await pool.execute(

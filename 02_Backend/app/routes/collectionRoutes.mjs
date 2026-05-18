@@ -5,9 +5,9 @@ import { getCollection, addToCollection, updateCollectionEntry, deleteCollection
 const router = express.Router();
 
 // CRUD collection
-router.get("/",         verifyToken, getCollection);
-router.post("/",        verifyToken, addToCollection);
-router.put("/:id",      verifyToken, updateCollectionEntry);
-router.delete("/:id",   verifyToken, deleteCollectionEntry);
+router.get("/", verifyToken, getCollection);
+router.post("/", verifyToken, addToCollection);
+router.put("/:id", verifyToken, updateCollectionEntry);
+router.delete("/:id", verifyToken, deleteCollectionEntry);
 
 export default router;
