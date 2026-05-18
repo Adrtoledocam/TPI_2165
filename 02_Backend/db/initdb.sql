@@ -1,26 +1,25 @@
 CREATE DATABASE IF NOT EXISTS arcaludo_db;
 USE arcaludo_db;
 
-CREATE TABLE t_account (
-    accId           INT          AUTO_INCREMENT,
-    accUsername     VARCHAR(50)  NOT NULL,
-    accEmail        VARCHAR(255) NOT NULL,
-    accPasswordHash VARCHAR(60)  NOT NULL,
-    accCreatedAt    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (accId),
-    UNIQUE (accEmail),
-    UNIQUE (accUsername)
+CREATE TABLE t_user (
+    useId           INT          AUTO_INCREMENT,
+    useUsername     VARCHAR(50)  NOT NULL,
+    useEmail        VARCHAR(255) NOT NULL,
+    usePasswordHash VARCHAR(60)  NOT NULL,
+    useCreatedAt    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (useId),
+    UNIQUE (useEmail),
+    UNIQUE (useUsername)
 ) ENGINE=InnoDB;
 
 CREATE TABLE t_preferences_user (
     preId             INT      AUTO_INCREMENT,
     preCommunityOptIn BOOLEAN  NOT NULL DEFAULT FALSE,
-    preUpdatedAt      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-                                        ON UPDATE CURRENT_TIMESTAMP,
-    preAccId          INT      NOT NULL,
+    preUpdatedAt      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    preUseId          INT      NOT NULL,
     PRIMARY KEY (preId),
-    UNIQUE (preAccId),
-    CONSTRAINT FK_pre_account FOREIGN KEY (preAccId) REFERENCES t_account (accId) ON DELETE CASCADE
+    UNIQUE (preUseId),
+    CONSTRAINT FK_pre_user FOREIGN KEY (preUseId) REFERENCES t_user (useId) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE t_game (
@@ -29,8 +28,8 @@ CREATE TABLE t_game (
     gamCoverUrl    VARCHAR(500),
     gamPlatforms   VARCHAR(100),
     gamDeveloper   VARCHAR(100),
-    gamMetacritic  INT,
     gamPublisher   VARCHAR(100),
+    gamMetacritic  INT,
     gamGenre       VARCHAR(100),
     gamReleaseDate DATE,
     PRIMARY KEY (gamId)
@@ -44,9 +43,9 @@ CREATE TABLE t_collection_game (
     colPlaytime     INT,
     colOwnPlatforms VARCHAR(100),
     colAddedAt      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    colAccId        INT          NOT NULL,
+    colUseId        INT          NOT NULL,
     colGamId        INT,
     PRIMARY KEY (colId),
-    CONSTRAINT FK_col_account FOREIGN KEY (colAccId) REFERENCES t_account (accId) ON DELETE CASCADE,
-    CONSTRAINT FK_col_game    FOREIGN KEY (colGamId) REFERENCES t_game    (gamId) ON DELETE SET NULL
+    CONSTRAINT FK_col_user FOREIGN KEY (colUseId) REFERENCES t_user (useId) ON DELETE CASCADE,
+    CONSTRAINT FK_col_game FOREIGN KEY (colGamId) REFERENCES t_game (gamId) ON DELETE SET NULL
 ) ENGINE=InnoDB;

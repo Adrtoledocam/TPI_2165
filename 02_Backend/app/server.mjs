@@ -35,9 +35,6 @@ app.get('/', (req, res) => {
 //Authentification
 app.use('/api/auth', authRoutes);
 
-
-
-
 app.listen(PORT, () => {
   console.log(`🚀 Serveur démarré sur http://localhost:${PORT}`);
   console.log(`📡 En attente de requêtes de l'application MAUI...`);
