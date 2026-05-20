@@ -9,27 +9,63 @@ const mapRawgGame = (gam) => ({
     title:       gam.name,
     coverUrl:    gam.background_image ?? null,
     platforms:   gam.platforms ?.map(p => p.platform.name).join("|") ?? null,
-    developer:   gam.developers?.[0]?.name ?? null, //Juste pour le details du jeu
-    publisher:   gam.publishers?.[0]?.name ?? null, //Juste pour le details du jeu
+    developer:   gam.developers?.[0]?.name ?? null, //Juste dans le details du jeu
+    publisher:   gam.publishers?.[0]?.name ?? null, //Juste dans le details du jeu
     genre:       gam.genres?.[0]?.name ?? null,
     metacritic:  gam.metacritic ?? null,
     releaseDate: gam.released ?? null,
 });
 
+const getFilterOrdering = (sort) => {
+    let ordering = "-metacritic";
+    let datesFilter = "";
+
+    const today = new Date().toISOString().split("T")[0];
+
+    switch (sort) {
+        case "recent":
+            ordering = "-released";
+            datesFilter = `&dates=1990-01-01,${today}`;
+            break;
+        case "az":
+            ordering = "name";
+            break;
+        case "za":
+            ordering = "-name";
+            break;
+        case "avenir":
+            ordering = "released";
+            //const today = new Date().toISOString().split("T")[0];
+            datesFilter = `&dates=${today},2030-12-31`;
+            break;
+        case "notes":
+        default:
+            ordering = "-metacritic";
+            break;
+    }
+    return { ordering, datesFilter };
+};
 
 //GET -> /api/games/trending -> Les premier joux à afficher avec bon note metacritic
 export const getTrending = async (req, res) => {
     const useId = req.user.id;
+    const sort   = req.query.sort ?? "notes";
+
+    const { ordering, datesFilter } = getFilterOrdering(sort);
 
     try {
-        const url = `${RAWG_BASE_URL}/games?key=${RAWG_API_KEY}&ordering=-added&page_size=10`;
+        const url = `${RAWG_BASE_URL}/games?key=${RAWG_API_KEY}&ordering=${ordering}&page_size=10${datesFilter}`;
         const response = await fetch(url);
 
         if (!response.ok)
-            return res.status(502).json({ error: "Erreur lors de la communication avec l'API RAWG." });
+            return res.status(502).json({ error: "Erreur avec l'API RAWG." });
 
         const data = await response.json();
-        const rawgGames = data.results;
+        let rawgGames = data.results;
+
+        if (sort === "az" || sort === "za") { //Solution a bug des titres en autre langue
+            rawgGames = rawgGames.filter(gam => /^[A-Za-z]/.test(gam.name));
+        }
 
         //Récupérer les IDs des jeux déjà dans la collection de l'utilisateur
         const [collectionRows] = await pool.execute(
@@ -47,7 +83,6 @@ export const getTrending = async (req, res) => {
         res.json(finalGames);
 
     } catch (err) {
-        console.error("Erreur getTrending :", err.message);
         res.status(500).json({ error: "Erreur serveur lors de la récupération des tendances." });
     }
 };
@@ -57,18 +92,25 @@ export const searchGames = async (req, res) => {
     const useId = req.user.id;
     const query = req.query.q?.trim();
     const page  = parseInt(req.query.page) || 1;
+    const sort = req.query.sort ?? "notes";
     if (!query || query.length < 3)
-        return res.status(400).json({ error: "Paramètre requis (min. 3 caractères)" });
+        return res.status(400).json({ error: "Recherche trop courte." });
+
+    const { ordering, datesFilter } = getFilterOrdering(sort);
 
     try {
-        const url = `${RAWG_BASE_URL}/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(query)}&page_size=10&page=${page}`;
+        const url = `${RAWG_BASE_URL}/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(query)}&ordering=${ordering}&page_size=10&page=${page}${datesFilter}`;
         const response = await fetch(url);
 
         if (!response.ok)
-            return res.status(502).json({ error: "Erreur lors de la communication avec l'API RAWG." });
+            return res.status(502).json({ error: "Erreur avec RAWG." });
 
         const data = await response.json();
-        const rawgGames = data.results;
+        let rawgGames = data.results;
+
+        if (sort === "az" || sort === "za") {
+            rawgGames = rawgGames.filter(gam => /^[A-Za-z]/.test(gam.name));
+        }
 
         //Récupérer les IDs de la collection de l'utilisateur
         const [collectionRows] = await pool.execute(
@@ -82,7 +124,6 @@ export const searchGames = async (req, res) => {
             mappedGame.inCollection = userGameIds.includes(gam.id);
             finalGames.push(mappedGame);
         }
-
         res.json({
             count: data.count,
             page,
@@ -92,7 +133,6 @@ export const searchGames = async (req, res) => {
         });
 
     } catch (err) {
-        console.error("Erreur searchGames :", err.message);
         res.status(500).json({ error: "Erreur serveur lors de la recherche." });
     }
 };
@@ -129,12 +169,8 @@ export const getGameDetail = async (req, res) => {
         const gameData = mapRawgGame(gam);
         gameData.description    = gam.description_raw ?? null;
         gameData.collectionEntry = rows.length > 0 ? rows[0] : null;
-
         res.json(gameData);
-
-
     } catch (err) {
-        console.error("Erreur getGameDetail :", err.message);
         res.status(500).json({ error: "Erreur serveur lors de la récupération du jeu." });
     }
 };

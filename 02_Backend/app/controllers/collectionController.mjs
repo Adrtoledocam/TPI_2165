@@ -1,11 +1,33 @@
 import {pool} from "../config/db.mjs";
 
-//GET -> /api/collection -> Retourne la collection de l'user
+//GET -> /api/collection -> Retourne la collection de l'user + filtres : status et a-z
 export const getCollection = async (req, res) => {
     const useId = req.user.id;
+    const status = req.query.status ?? null;
+    const sort = req.query.sort ?? "recent";
+    const search = req.query.q?.trim() ?? null;
+
+    //Si c'est le filtre de status 
+    const validStatus = ["acquis", "playing", "termine"];
+    if (status && !validStatus.includes(status)) {
+        return res.status(400).json({ error: "Filtre status invalide" });
+    }
+
+    //Filtre défaut les plus récents
+    let orderBy = "col.colAddedAt DESC"; 
+    switch (sort) {
+        case "az":
+            orderBy = "gam.gamTitle ASC";
+            break;
+        case "recent":
+        default:
+            orderBy = "col.colAddedAt DESC";
+            break;
+    }
+
     try{
-        const [rows] = await pool.execute(
-            `SELECT
+        let query = `
+            SELECT
                 col.colId,
                 col.colStatus,
                 col.colRating,
@@ -24,13 +46,27 @@ export const getCollection = async (req, res) => {
                 gam.gamReleaseDate
             FROM t_collection_game col
             LEFT JOIN t_game gam ON col.colGamId = gam.gamId
-            WHERE col.colUseId = ?
-            ORDER BY col.colAddedAt DESC`,
-            [useId]
-        );
+            WHERE col.colUseId = ?`;
+
+        const params = [useId];
+
+        if (status) {
+            // Filtre sur un statut
+            query += " AND col.colStatus = ?";
+            params.push(status);
+        } else {
+            query += " AND col.colStatus != 'wishlist'";
+        }
+        if (search && search.length >= 2) {
+            query += " AND gam.gamTitle LIKE ?";
+            params.push(`%${search}%`);
+        }
+
+        query += ` ORDER BY ${orderBy}`;
+        const [rows] = await pool.execute(query, params);
+
         res.json(rows);      
     } catch (err) {
-        console.error("Erreur getCollection :", err.message);
         res.status(500).json({ error: "Erreur serveur lors de la récupération de la collection." });
     }
 };
@@ -41,10 +77,10 @@ export const addToCollection = async (req, res) =>{
     const {game, status, ownPlatforms} = req.body;
 
     //Verifier le formulaire + status
-    if (!game || !game.id || !status)
-        return res.status(400).json({ error: "Champs requis manquants (game, status)"});
+    if (!game || !game.id || !game.title || !status)
+        return res.status(400).json({ error: "Champs requis manquants"});
 
-    const validSatatus = ["aquis", "playing", "termine", "wishlist"];
+    const validSatatus = ["acquis", "playing", "termine", "wishlist"];
     if (!validSatatus.includes(status))
         return res.status(400).json({error : `Statut invalide`});
 
@@ -79,7 +115,6 @@ export const addToCollection = async (req, res) =>{
         );
         res.status(201).json({ message: "Jeu ajouté à la collection.", colId: result.insertId });
     } catch (err) {
-        console.error("Erreur addToCollection :", err.message);
         res.status(500).json({ error: "Erreur serveur lors de l'ajout du jeu." });
     }
 } 
@@ -102,7 +137,7 @@ export const updateCollectionEntry = async (req, res) => {
     try {
         //Vérifier l'entrée 
         const [rows] = await pool.execute(
-            "SELECT colId FROM t_collection_game WHERE colId = ? AND colUseId = ?",
+            "SELECT colId, colStatus FROM t_collection_game WHERE colId = ? AND colUseId = ?",
             [colId, userId]
         );
 
@@ -110,10 +145,22 @@ export const updateCollectionEntry = async (req, res) => {
             return res.status(404).json({ error: "Entrée introuvable dans votre collection." });
         }
 
+        const currentStatus = rows[0].colStatus;
+
         //Mettre à jour les champs fournis
-        if (status !== undefined) {
-            await pool.execute("UPDATE t_collection_game SET colStatus = ? WHERE colId = ?", [status, colId]);
+        if (status === "wishlist" && currentStatus !== "wishlist") {
+            await pool.execute(
+                "UPDATE t_collection_game SET colStatus = ?, colAddedAt = CURRENT_TIMESTAMP WHERE colId = ?",
+                [status, colId]
+            );
+        } else if (status) {
+            await pool.execute(
+                "UPDATE t_collection_game SET colStatus = ? WHERE colId = ?",
+                [status, colId]
+            );
         }
+
+
         if (rating !== undefined) {
             await pool.execute("UPDATE t_collection_game SET colRating = ? WHERE colId = ?", [rating, colId]);
         }
@@ -130,7 +177,6 @@ export const updateCollectionEntry = async (req, res) => {
         res.json({ message: "Mise à jour avec succès." });
 
     } catch (err) {
-        console.error("Erreur updateCollectionEntry :", err.message);
         res.status(500).json({ error: "Erreur serveur lors de la mise à jour." });
     }
 };
@@ -151,7 +197,6 @@ export const deleteCollectionEntry = async (req, res) => {
 
         res.json({ message: "Jeu retiré de la collection." });
     } catch (err) {
-        console.error("Erreur deleteCollectionEntry :", err.message);
         res.status(500).json({ error: "Erreur serveur lors de la suppression." });
     }
 };

@@ -7,7 +7,10 @@ import { dirname, join } from 'path';
 import authRoutes from './routes/authRoutes.mjs';
 import collectionRoutes from './routes/collectionRoutes.mjs';
 import gameRoutes from './routes/gameRoutes.mjs';
-
+import userRoutes       from './routes/userRoutes.mjs';
+import wishlistRoutes   from './routes/wishlistRoutes.mjs';
+import preferencesRoutes   from './routes/preferencesRoutes.mjs';
+import communityRoutes     from './routes/communityRoutes.mjs';
  
 const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: join(__dirname, '../.env') });
@@ -36,7 +39,10 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/collection', collectionRoutes);
 app.use('/api/games', gameRoutes);
-
+app.use('/api/user', userRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/preferences', preferencesRoutes);
+app.use('/api/community', communityRoutes);
 
 app.listen(PORT, () => {
   console.log(`Serveur démarré sur http://localhost:${PORT}`);

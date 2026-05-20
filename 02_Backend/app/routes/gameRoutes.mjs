@@ -4,7 +4,6 @@ import { searchGames, getTrending, getGameDetail } from "../controllers/gameCont
 
 const router = express.Router();
 
-// Toutes les routes jeux sont protégées
 router.get("/trending", verifyToken, getTrending);
 router.get("/search", verifyToken, searchGames);
 router.get("/:id", verifyToken, getGameDetail);
