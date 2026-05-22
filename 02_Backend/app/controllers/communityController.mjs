@@ -2,6 +2,8 @@ import { pool } from "../config/db.mjs";
 
 // GET /api/community -> Retourne la liste des utilisateurs avec la Communauté
 export const getCommunity = async (req, res) => {
+    const userId = req.user.id;
+    
     try {
         //Vérifier l'accées 
         const [prefRows] = await pool.execute(

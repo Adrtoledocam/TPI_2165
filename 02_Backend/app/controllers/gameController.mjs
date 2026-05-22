@@ -21,6 +21,9 @@ const getFilterOrdering = (sort) => {
     let datesFilter = "";
 
     const today = new Date().toISOString().split("T")[0];
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split("T")[0];
 
     switch (sort) {
         case "recent":
@@ -28,15 +31,15 @@ const getFilterOrdering = (sort) => {
             datesFilter = `&dates=1990-01-01,${today}`;
             break;
         case "az":
-            ordering = "name";
+            //ordering = "name";
             break;
         case "za":
-            ordering = "-name";
+            //ordering = "-name";
             break;
         case "avenir":
             ordering = "released";
             //const today = new Date().toISOString().split("T")[0];
-            datesFilter = `&dates=${today},2030-12-31`;
+            datesFilter = `&dates=${tomorrowStr},2030-12-31`;
             break;
         case "notes":
         default:
@@ -44,6 +47,16 @@ const getFilterOrdering = (sort) => {
             break;
     }
     return { ordering, datesFilter };
+};
+
+// Tri local A-Z ou Z-A 
+const sortGames = (games, sort) => {
+    if (sort === "az" || sort === "za") {
+        const filtered = games.filter(g => /^[A-Za-z0-9]/.test(g.title));
+        if (sort === "az") return filtered.sort((a, b) => a.title.localeCompare(b.title));
+        if (sort === "za") return filtered.sort((a, b) => b.title.localeCompare(a.title));
+    }
+    return games;
 };
 
 //GET -> /api/games/trending -> Les premier joux à afficher avec bon note metacritic
@@ -54,19 +67,14 @@ export const getTrending = async (req, res) => {
     const { ordering, datesFilter } = getFilterOrdering(sort);
 
     try {
-        const url = `${RAWG_BASE_URL}/games?key=${RAWG_API_KEY}&ordering=${ordering}&page_size=10${datesFilter}`;
+        const url = `${RAWG_BASE_URL}/games?key=${RAWG_API_KEY}&ordering=${ordering}&page_size=20${datesFilter}`;
         const response = await fetch(url);
 
         if (!response.ok)
             return res.status(502).json({ error: "Erreur avec l'API RAWG." });
 
         const data = await response.json();
-        let rawgGames = data.results;
-
-        if (sort === "az" || sort === "za") { //Solution a bug des titres en autre langue
-            rawgGames = rawgGames.filter(gam => /^[A-Za-z]/.test(gam.name));
-        }
-
+        
         //Récupérer les IDs des jeux déjà dans la collection de l'utilisateur
         const [collectionRows] = await pool.execute(
             "SELECT colGamId FROM t_collection_game WHERE colUseId = ?", [useId]);
@@ -74,10 +82,22 @@ export const getTrending = async (req, res) => {
 
         //Construire la liste finale avec le inCollection
         const finalGames = [];
-        for (const gam of rawgGames) {
+        for (const gam of data.results) {
             const mappedGame = mapRawgGame(gam);
             mappedGame.inCollection = userGameIds.includes(gam.id);
             finalGames.push(mappedGame);
+        }
+
+        /* Tri local
+        if (sort === "az" || sort === "za") { //Solution a bug des titres en autre langue
+            sortGames(finalGames, sort);
+        }*/
+
+        if (sort === "az") {
+            finalGames.sort((a, b) => a.title.localeCompare(b.title));
+        }
+        if (sort === "za") {
+            finalGames.sort((a, b) => b.title.localeCompare(a.title));
         }
 
         res.json(finalGames);
@@ -99,7 +119,7 @@ export const searchGames = async (req, res) => {
     const { ordering, datesFilter } = getFilterOrdering(sort);
 
     try {
-        const url = `${RAWG_BASE_URL}/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(query)}&ordering=${ordering}&page_size=10&page=${page}${datesFilter}`;
+        const url = `${RAWG_BASE_URL}/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(query)}&ordering=${ordering}&page_size=20&page=${page}${datesFilter}`;
         const response = await fetch(url);
 
         if (!response.ok)
@@ -107,10 +127,6 @@ export const searchGames = async (req, res) => {
 
         const data = await response.json();
         let rawgGames = data.results;
-
-        if (sort === "az" || sort === "za") {
-            rawgGames = rawgGames.filter(gam => /^[A-Za-z]/.test(gam.name));
-        }
 
         //Récupérer les IDs de la collection de l'utilisateur
         const [collectionRows] = await pool.execute(
