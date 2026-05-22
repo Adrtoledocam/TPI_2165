@@ -9,6 +9,7 @@ namespace TPI_ArcaludoApp
             InitializeComponent();
             Routing.RegisterRoute("RegisterPage", typeof(RegisterPage));
             Routing.RegisterRoute("GameDetailPage", typeof(GameDetailPage));
+
         }
         protected override async void OnNavigated(ShellNavigatedEventArgs args)
         {

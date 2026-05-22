@@ -1,12 +1,276 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:TPI_ArcaludoApp.ViewModels"
+             xmlns:models="clr-namespace:TPI_ArcaludoApp.Models"
              x:Class="TPI_ArcaludoApp.Pages.GameDetailPage"
-             Title="GameDetailPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             BackgroundColor="#000000"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.BindingContext>
+        <vm:GameDetailViewModel />
+    </ContentPage.BindingContext>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <!-- HEADER CUSTOM -->
+            <Grid BackgroundColor="#4A4A6A"
+                  Padding="16,44,16,12"
+                  ColumnDefinitions="Auto,*">
+                <Button Grid.Column="0"
+                        Text="←"
+                        Command="{Binding GoBackCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="White"
+                        FontSize="22"
+                        WidthRequest="44"
+                        HeightRequest="44"
+                        Padding="0" />
+                <Label Grid.Column="1"
+                       Text="Détails du jeu"
+                       TextColor="White"
+                       FontSize="17"
+                       FontAttributes="Bold"
+                       VerticalOptions="Center"
+                       HorizontalOptions="Center" />
+            </Grid>
+
+            <!-- COVER PLEINE LARGEUR -->
+            <Image Source="{Binding CurrentGame.CoverUrl}"
+                   HeightRequest="220"
+                   Aspect="AspectFill" />
+
+            <VerticalStackLayout Padding="16" Spacing="0">
+
+                <!-- TITRE -->
+                <Label Text="{Binding CurrentGame.Title}"
+                       TextColor="White"
+                       FontSize="26"
+                       FontAttributes="Bold"
+                       Margin="0,12,0,6" />
+
+                <!-- PUBLISHER / DEVELOPER / ANNÉE -->
+                <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,4">
+                    <HorizontalStackLayout Grid.Column="0" Spacing="4">
+                        <Label Text="⊞" TextColor="#aaa" FontSize="12" VerticalOptions="Center" />
+                        <Label Text="{Binding CurrentGame.Publisher}"
+                               TextColor="#aaa" FontSize="12" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Grid.Column="1" Spacing="4" Margin="8,0">
+                        <Label Text="👤" TextColor="#aaa" FontSize="12" VerticalOptions="Center" />
+                        <Label Text="{Binding CurrentGame.Developer}"
+                               TextColor="#aaa" FontSize="12" />
+                    </HorizontalStackLayout>
+                    <Label Grid.Column="2"
+                           Text="{Binding CurrentGame.ReleaseYear}"
+                           TextColor="#aaa" FontSize="12" />
+                </Grid>
+
+                <!-- GENRES -->
+                <Label Text="{Binding CurrentGame.Genre}"
+                       TextColor="#aaa"
+                       FontSize="12"
+                       Margin="0,0,0,16" />
+
+                <!-- ── STATUT ── -->
+                <Grid ColumnDefinitions="*,Auto,*" Margin="0,0,0,12">
+                    <BoxView Grid.Column="0" HeightRequest="1" BackgroundColor="#333" VerticalOptions="Center" />
+                    <Label Grid.Column="1" Text="STATUT" TextColor="White"
+                           FontAttributes="Bold" FontSize="13" Margin="10,0" />
+                    <BoxView Grid.Column="2" HeightRequest="1" BackgroundColor="#333" VerticalOptions="Center" />
+                </Grid>
+
+                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8" Margin="0,0,0,20">
+                    <Button Grid.Column="0" Text="Acquis"
+                            Command="{Binding SelectStatusCommand}"
+                            CommandParameter="acquis"
+                            BackgroundColor="{Binding AcquisColor}"
+                            TextColor="White" FontSize="12"
+                            CornerRadius="8" HeightRequest="44" Padding="4,0" />
+                    <Button Grid.Column="1" Text="En cours"
+                            Command="{Binding SelectStatusCommand}"
+                            CommandParameter="playing"
+                            BackgroundColor="{Binding PlayingColor}"
+                            TextColor="White" FontSize="12"
+                            CornerRadius="8" HeightRequest="44" Padding="4,0" />
+                    <Button Grid.Column="2" Text="Terminé"
+                            Command="{Binding SelectStatusCommand}"
+                            CommandParameter="termine"
+                            BackgroundColor="{Binding TermineColor}"
+                            TextColor="White" FontSize="12"
+                            CornerRadius="8" HeightRequest="44" Padding="4,0" />
+                    <Button Grid.Column="3" Text="Souhait"
+                            Command="{Binding SelectStatusCommand}"
+                            CommandParameter="wishlist"
+                            BackgroundColor="{Binding WishlistColor}"
+                            TextColor="White" FontSize="12"
+                            CornerRadius="8" HeightRequest="44" Padding="4,0" />
+                </Grid>
+
+                <!-- ── MES PLATEFORMES ── -->
+                <Grid ColumnDefinitions="*,Auto,*" Margin="0,0,0,12">
+                    <BoxView Grid.Column="0" HeightRequest="1" BackgroundColor="#333" VerticalOptions="Center" />
+                    <Label Grid.Column="1" Text="MES PLATEFORMES" TextColor="White"
+                           FontAttributes="Bold" FontSize="13" Margin="10,0" />
+                    <BoxView Grid.Column="2" HeightRequest="1" BackgroundColor="#333" VerticalOptions="Center" />
+                </Grid>
+
+                <FlexLayout BindableLayout.ItemsSource="{Binding Platforms}"
+                            Wrap="Wrap"
+                            Direction="Row"
+                            JustifyContent="Start"
+                            AlignItems="Start"
+                            Margin="0,0,0,20">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:PlatformItem">
+                            <Border BackgroundColor="{Binding ChipBackground}"
+                                    StrokeShape="RoundRectangle 100"
+                                    Stroke="Transparent"
+                                    Padding="14,8"
+                                    Margin="0,0,8,8">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:GameDetailViewModel}}, Path=TogglePlatformCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="{Binding Name}"
+                                       TextColor="{Binding ChipTextColor}"
+                                       FontSize="13"
+                                       FontAttributes="Bold" />
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </FlexLayout>
+
+                <!-- ── MES DONNÉES ── -->
+                <Grid ColumnDefinitions="*,Auto,*" Margin="0,0,0,12">
+                    <BoxView Grid.Column="0" HeightRequest="1" BackgroundColor="#333" VerticalOptions="Center" />
+                    <Label Grid.Column="1" Text="MES DONNÉES" TextColor="White"
+                           FontAttributes="Bold" FontSize="13" Margin="10,0" />
+                    <BoxView Grid.Column="2" HeightRequest="1" BackgroundColor="#333" VerticalOptions="Center" />
+                </Grid>
+
+                <!-- TEMPS DE JEU -->
+                <Border BackgroundColor="#0a0a0a"
+                        Stroke="#2a2a2a"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="16,12"
+                        Margin="0,0,0,10">
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
+                        <Label Grid.Column="0" Text="⏱" FontSize="18" VerticalOptions="Center" />
+                        <Label Grid.Column="1" Text="Temps de jeu"
+                               TextColor="White" FontSize="14"
+                               FontAttributes="Bold" VerticalOptions="Center"
+                               Margin="10,0" />
+                        <Button Grid.Column="2" Text="−"
+                                Command="{Binding RemovePlaytimeCommand}"
+                                BackgroundColor="#2a2a2a"
+                                TextColor="White" FontSize="16"
+                                WidthRequest="36" HeightRequest="36"
+                                CornerRadius="18" Padding="0" />
+                        <Label Grid.Column="3"
+                               Text="{Binding PlaytimeDisplay}"
+                               TextColor="#3A7AFE"
+                               FontSize="16" FontAttributes="Bold"
+                               VerticalOptions="Center"
+                               Margin="12,0" />
+                        <Button Grid.Column="4" Text="+"
+                                Command="{Binding AddPlaytimeCommand}"
+                                BackgroundColor="#2a2a2a"
+                                TextColor="White" FontSize="16"
+                                WidthRequest="36" HeightRequest="36"
+                                CornerRadius="18" Padding="0" />
+                    </Grid>
+                </Border>
+
+                <!-- MA NOTE (étoiles) -->
+                <Border BackgroundColor="#0a0a0a"
+                        Stroke="#2a2a2a"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="16,12"
+                        Margin="0,0,0,10">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Label Grid.Column="0" Text="★" TextColor="#F5C42B"
+                               FontSize="18" VerticalOptions="Center" />
+                        <Label Grid.Column="1" Text="Ma note"
+                               TextColor="White" FontSize="14"
+                               FontAttributes="Bold" VerticalOptions="Center"
+                               Margin="10,0" />
+                        <HorizontalStackLayout Grid.Column="2" Spacing="4">
+                            <Label Text="{Binding Star1}" TextColor="#3A7AFE" FontSize="24"
+                                   FontAttributes="Bold">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SetRatingCommand}" CommandParameter="1" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="{Binding Star2}" TextColor="#3A7AFE" FontSize="24"
+                                   FontAttributes="Bold">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SetRatingCommand}" CommandParameter="2" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="{Binding Star3}" TextColor="#3A7AFE" FontSize="24"
+                                   FontAttributes="Bold">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SetRatingCommand}" CommandParameter="3" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="{Binding Star4}" TextColor="#3A7AFE" FontSize="24"
+                                   FontAttributes="Bold">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SetRatingCommand}" CommandParameter="4" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="{Binding Star5}" TextColor="#3A7AFE" FontSize="24"
+                                   FontAttributes="Bold">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SetRatingCommand}" CommandParameter="5" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </HorizontalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- COMMENTAIRE -->
+                <Border BackgroundColor="#0a0a0a"
+                        Stroke="#2a2a2a"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="14,10"
+                        Margin="0,0,0,24">
+                    <Editor Placeholder="Commentaire..."
+                            PlaceholderColor="#666"
+                            TextColor="White"
+                            BackgroundColor="Transparent"
+                            Text="{Binding Comment}"
+                            AutoSize="TextChanges"
+                            MinimumHeightRequest="80" />
+                </Border>
+
+                <!-- BOUTON ENREGISTRER -->
+                <Button Text="💾 Enregistrer"
+                        Command="{Binding SaveCommand}"
+                        BackgroundColor="#3A7AFE"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="15"
+                        CornerRadius="100"
+                        HeightRequest="52"
+                        Margin="0,0,0,12" />
+
+                <!-- BOUTON RETIRER (visible seulement si jeu dans la collection) -->
+                <Button Text="🗑 Retirer de ma collection"
+                        Command="{Binding RemoveFromCollectionCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="#E74C3C"
+                        BorderColor="#E74C3C"
+                        BorderWidth="1.5"
+                        FontSize="14"
+                        CornerRadius="100"
+                        HeightRequest="48"
+                        Margin="0,0,0,32" />
+
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
