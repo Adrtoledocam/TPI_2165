@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TPI_ArcaludoApp.Pages.LibraryPage"
+             BackgroundColor="#000000"
+             Title="LibraryPage">
+    <VerticalStackLayout>
+        <Label 
+            Text="Bibliothèque"
+            TextColor="White"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center" />
+    </VerticalStackLayout>
+</ContentPage>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="TPI_ArcaludoApp.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:TPI_ArcaludoApp"
+    xmlns:pages="clr-namespace:TPI_ArcaludoApp.Pages"
+    Shell.NavBarIsVisible="False"
+    Shell.BackgroundColor="#4A4A6A"
+    Shell.ForegroundColor="White"
+    Shell.TitleColor="White"
+    Shell.TabBarBackgroundColor="#4A4A6A"
+    Shell.TabBarForegroundColor="White"
+    Shell.TabBarUnselectedColor="#888A9E">
+
+    <!-- Pages d'authentification -->
+    <ShellContent Route="LoginPage"    Shell.NavBarIsVisible="False"
+                  ContentTemplate="{DataTemplate pages:LoginPage}" />
+    <ShellContent Route="RegisterPage" Shell.NavBarIsVisible="False"
+                  ContentTemplate="{DataTemplate pages:RegisterPage}" />
+
+    <!-- TabBar -->
+    <TabBar Route="Main">
+        <Tab Title="Collection" Icon="IconCollection.png">
+            <ShellContent Route="CollectionPage"
+                          ContentTemplate="{DataTemplate pages:CollectionPage}" />
+        </Tab>
+        <Tab Title="Bibliothèque" Icon="IconLibrary.png">
+            <ShellContent Route="LibraryPage"
+                          ContentTemplate="{DataTemplate pages:LibraryPage}" />
+        </Tab>
+        <Tab Title="Souhaits" Icon="IconWishlist.png">
+            <ShellContent Route="WishlistPage"
+                          ContentTemplate="{DataTemplate pages:WishlistPage}" />
+        </Tab>
+        <Tab Title="Communauté" Icon="IconCommunity.png">
+            <ShellContent Route="CommunityPage"
+                          ContentTemplate="{DataTemplate pages:CommunityPage}" />
+        </Tab>
+        <Tab Title="Profil" Icon="IconProfil.png">
+            <ShellContent Route="ProfilePage"
+                          ContentTemplate="{DataTemplate pages:ProfilePage}" />
+        </Tab>
+    </TabBar>
+
+    <ShellContent Route="GameDetailPage" Shell.NavBarIsVisible="False"
+                  ContentTemplate="{DataTemplate pages:GameDetailPage}" />
+
+
+</Shell>

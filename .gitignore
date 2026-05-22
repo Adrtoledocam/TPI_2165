@@ -141,3 +141,25 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Dossiers de compilation générés automatiquement
+bin/
+obj/
+
+# Fichier de configuration Visual Studio (local à chaque développeur)
+.vs/
+*.user
+*.suo
+
+# Packages NuGet téléchargés automatiquement
+packages/
+*.nupkg
+
+# Fichiers générés par le build Android
+*.apk
+*.aab
+*.keystore
+
+# Cache de compilation .NET
+.DS_Store
+Thumbs.db

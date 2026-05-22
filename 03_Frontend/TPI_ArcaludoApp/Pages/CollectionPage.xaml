@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:TPI_ArcaludoApp.ViewModels"
+             xmlns:models="clr-namespace:TPI_ArcaludoApp.Models"
+             x:Class="TPI_ArcaludoApp.Pages.CollectionPage"
+             BackgroundColor="#000000"
+             Shell.NavBarIsVisible="True"
+             Title="{Binding CollectionTitle}">
+
+    <ContentPage.BindingContext>
+        <vm:CollectionViewModel />
+    </ContentPage.BindingContext>
+
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <!-- Recherche -->
+        <Border Grid.Row="0"
+                BackgroundColor="#1a1a1a"
+                Stroke="Transparent"
+                StrokeShape="RoundRectangle 100"
+                Margin="16,12,16,8">
+            <HorizontalStackLayout Padding="14,0" Spacing="8">
+                <Label Text="🔍" FontSize="16" VerticalOptions="Center" />
+                <Entry Placeholder="Rechercher un jeu..."
+                       PlaceholderColor="#666"
+                       TextColor="White"
+                       BackgroundColor="Transparent"
+                       Text="{Binding SearchText}"
+                       ReturnCommand="{Binding SearchCommand}"
+                       HorizontalOptions="FillAndExpand" />
+            </HorizontalStackLayout>
+        </Border>
+
+        <!-- Filtres + tri -->
+        <ScrollView Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalScrollBarVisibility="Never"
+                    Margin="16,0,16,8">
+            <HorizontalStackLayout Spacing="8">
+                <Button Text="Acquis"
+                        Command="{Binding FilterCommand}"
+                        CommandParameter="acquis"
+                        BackgroundColor="{Binding AcquisButtonColor}"
+                        TextColor="#F5C42B"
+                        FontSize="13"
+                        CornerRadius="100"
+                        Padding="16,8"
+                        HeightRequest="36" />
+                <Button Text="En cours"
+                        Command="{Binding FilterCommand}"
+                        CommandParameter="playing"
+                        BackgroundColor="{Binding PlayingButtonColor}"
+                        TextColor="#3A7AFE"
+                        FontSize="13"
+                        CornerRadius="100"
+                        Padding="16,8"
+                        HeightRequest="36" />
+                <Button Text="Terminés"
+                        Command="{Binding FilterCommand}"
+                        CommandParameter="termine"
+                        BackgroundColor="{Binding TermineButtonColor}"
+                        TextColor="#76E16C"
+                        FontSize="13"
+                        CornerRadius="100"
+                        Padding="16,8"
+                        HeightRequest="36" />
+                <Button Text="A - Z"
+                        Command="{Binding SortAZCommand}"
+                        BackgroundColor="{Binding AZButtonColor}"
+                        TextColor="White"
+                        FontSize="13"
+                        CornerRadius="100"
+                        Padding="16,8"
+                        HeightRequest="36" />
+            </HorizontalStackLayout>
+        </ScrollView>
+
+        <!-- Liste -->
+        <CollectionView Grid.Row="2" ItemsSource="{Binding Games}">
+
+            <CollectionView.EmptyView>
+                <VerticalStackLayout VerticalOptions="Center"
+                                     HorizontalOptions="Center"
+                                     Spacing="12"
+                                     Padding="32">
+                    <Label Text="🎮" FontSize="48" HorizontalOptions="Center" />
+                    <Label Text="Aucun jeu dans votre collection"
+                           TextColor="#666"
+                           FontSize="15"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:CollectionGame">
+                    <Border BackgroundColor="#0d0d0d"
+                            Stroke="{Binding StatusColor}"
+                            StrokeThickness="1.5"
+                            StrokeShape="RoundRectangle 14"
+                            Margin="16,0,16,10">
+                        <Grid>
+                            <!-- Contenu de la carte -->
+                            <Grid ColumnDefinitions="120,*">
+
+                                <!-- Image de couverture -->
+                                <Image Grid.Column="0"
+                                       Source="{Binding GamCoverUrl}"
+                                       HeightRequest="130"
+                                       WidthRequest="120"
+                                       Aspect="AspectFill"
+                                       BackgroundColor="#1a1a1a" />
+
+                                <!-- Infos -->
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Padding="12,10,40,10"
+                                                     Spacing="5">
+
+                                    <Label Text="{Binding GamTitle}"
+                                           TextColor="White"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           LineBreakMode="TailTruncation"
+                                           Margin="0,0,0,4" />
+
+                                    <!-- Metacritic -->
+                                    <Label Text="{Binding MetacriticDisplay}"
+                                           TextColor="#F5C42B"
+                                           FontSize="13"
+                                           FontAttributes="Bold" />
+
+                                    <!-- Genre -->
+                                    <HorizontalStackLayout Spacing="6">
+                                        <Label Text="🧩" FontSize="11" VerticalOptions="Center" />
+                                        <Label Text="{Binding GamGenre}"
+                                               TextColor="#bbb" FontSize="12" />
+                                    </HorizontalStackLayout>
+
+                                    <!-- Plateformes -->
+                                    <HorizontalStackLayout Spacing="6">
+                                        <Label Text="🖥" FontSize="11" VerticalOptions="Center" />
+                                        <Label Text="{Binding GamPlatforms}"
+                                               TextColor="#bbb" FontSize="12"
+                                               LineBreakMode="TailTruncation" />
+                                    </HorizontalStackLayout>
+
+                                    <!-- Année + Badge statut -->
+                                    <Grid ColumnDefinitions="*,Auto" Margin="0,2,0,0">
+                                        <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                            <Label Text="📅" FontSize="11" VerticalOptions="Center" />
+                                            <Label Text="{Binding ReleaseYear}"
+                                                   TextColor="#bbb" FontSize="12"
+                                                   VerticalOptions="Center" />
+                                        </HorizontalStackLayout>
+
+                                        <Border Grid.Column="1"
+                                                StrokeShape="RoundRectangle 100"
+                                                Padding="10,4"
+                                                BackgroundColor="Transparent"
+                                                Stroke="{Binding StatusColor}">
+                                            <Label Text="{Binding StatusDisplay}"
+                                                   TextColor="{Binding StatusColor}"
+                                                   FontSize="11"
+                                                   FontAttributes="Bold" />
+                                        </Border>
+                                    </Grid>
+
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <!-- Bouton info -->
+                            <Button HorizontalOptions="End"
+                                    VerticalOptions="Start"
+                                    Margin="0,6,6,0"
+                                    Text="ℹ"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CollectionViewModel}}, Path=SelectGameCommand}"
+                                    CommandParameter="{Binding .}"
+                                    BackgroundColor="#2a2a2a"
+                                    TextColor="White"
+                                    FontSize="14"
+                                    WidthRequest="32"
+                                    HeightRequest="32"
+                                    CornerRadius="16"
+                                    Padding="0" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:TPI_ArcaludoApp.ViewModels"
+             x:Class="TPI_ArcaludoApp.Pages.ProfilePage"
+             BackgroundColor="#000000"
+             Title="Profil">
+
+    <ContentPage.BindingContext>
+        <vm:ProfileViewModel />
+    </ContentPage.BindingContext>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="0">
+
+            <!-- Logo -->
+            <Image Source="LogoNoTitleNoBackground.png" HeightRequest="80"
+                   HorizontalOptions="Center" Margin="0,20,0,8" />
+            <Label HorizontalOptions="Center" Margin="0,0,0,24" FontSize="28" FontAttributes="Bold">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="ARCA" TextColor="White" />
+                        <Span Text="LUDO" TextColor="#3A7AFE" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+
+            <!-- Info Personelle -->
+            <Border BackgroundColor="#0a0a0a"
+                    Stroke="#3A7AFE"
+                    StrokeThickness="1.5"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="20"
+                    Margin="0,0,0,16">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Informations personnelles"
+                           TextColor="White"
+                           FontSize="15"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           Margin="0,0,0,8" />
+                    <Grid ColumnDefinitions="*,Auto">
+                        <!-- Profil info -->
+                        <VerticalStackLayout Grid.Column="0" Spacing="8" VerticalOptions="Center">
+                            <HorizontalStackLayout Spacing="10">
+                                <Label Text="👤" FontSize="16" VerticalOptions="Center" />
+                                <Label Text="{Binding Username}"
+                                       TextColor="White"
+                                       FontSize="15"
+                                       FontAttributes="Bold" />
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout Spacing="10">
+                                <Label Text="@" TextColor="#aaa" FontSize="16" VerticalOptions="Center" />
+                                <Label Text="{Binding Email}"
+                                       TextColor="#aaa"
+                                       FontSize="13" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+
+                        <!-- Bouton Partager -->
+                        <Border Grid.Column="1"
+                                Stroke="#3A7AFE"
+                                StrokeThickness="1.5"
+                                StrokeShape="RoundRectangle 12"
+                                BackgroundColor="Transparent"
+                                Padding="12,10"
+                                Margin="12,0,0,0">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ShareProfileCommand}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout HorizontalOptions="Center" Spacing="6">
+                                <Label Text="Partager"
+                                       TextColor="#3A7AFE"
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center" />
+                                <Image Source="IconShareProfil.png"
+                                       HeightRequest="26"
+                                       WidthRequest="26"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- CARD STATISTIQUES -->
+            <Border BackgroundColor="#0a0a0a"
+                    Stroke="#2a2a2a"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="20"
+                    Margin="0,0,0,24">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Statistiques de collection"
+                           TextColor="White"
+                           FontSize="15"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           Margin="0,0,0,8" />
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+
+                        <!-- Acquis -->
+                        <Border Grid.Column="0"
+                                BackgroundColor="#1a1a1a"
+                                Stroke="#F5C42B"
+                                StrokeThickness="1.5"
+                                StrokeShape="RoundRectangle 12"
+                                Padding="12,10">
+                            <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                                <Label Text="{Binding StatAcquis}"
+                                       TextColor="#F5C42B"
+                                       FontSize="28"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Acquis"
+                                       TextColor="#F5C42B"
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Terminés -->
+                        <Border Grid.Column="1"
+                                BackgroundColor="#1a1a1a"
+                                Stroke="#76E16C"
+                                StrokeThickness="1.5"
+                                StrokeShape="RoundRectangle 12"
+                                Padding="12,10">
+                            <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                                <Label Text="{Binding StatTermine}"
+                                       TextColor="#76E16C"
+                                       FontSize="28"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Terminés"
+                                       TextColor="#76E16C"
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Souhaités -->
+                        <Border Grid.Column="2"
+                                BackgroundColor="#1a1a1a"
+                                Stroke="#FF6B9D"
+                                StrokeThickness="1.5"
+                                StrokeShape="RoundRectangle 12"
+                                Padding="12,10">
+                            <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                                <Label Text="{Binding StatWishlist}"
+                                       TextColor="#FF6B9D"
+                                       FontSize="28"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Souhaités"
+                                       TextColor="#FF6B9D"
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- BOUTON DÉCONNEXION -->
+            <Button Text="Se déconnecter"
+                    Command="{Binding LogoutCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="#E74C3C"
+                    BorderColor="#E74C3C"
+                    BorderWidth="2"
+                    FontAttributes="Bold"
+                    FontSize="15"
+                    CornerRadius="100"
+                    HeightRequest="50"
+                    Margin="0,0,0,12" />
+
+            <!-- BOUTON SUPPRIMER COMPTE -->
+            <Button Text="Supprimer mon compte"
+                    Command="{Binding DeleteAccountCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="#555"
+                    FontSize="13"
+                    CornerRadius="100"
+                    HeightRequest="44"
+                    Margin="0,0,0,32" />
+
+            <Label Text="ETML - TPI 2165"
+                   TextColor="#333"
+                   FontSize="11"
+                   HorizontalOptions="Center" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
