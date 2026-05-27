@@ -1,12 +1,159 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:TPI_ArcaludoApp.ViewModels"
+             xmlns:models="clr-namespace:TPI_ArcaludoApp.Models"
              x:Class="TPI_ArcaludoApp.Pages.CommunityPage"
-             Title="CommunityPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             BackgroundColor="#000000"
+             Title="Communauté">
+
+    <ContentPage.BindingContext>
+        <vm:CommunityViewModel />
+    </ContentPage.BindingContext>
+
+    <Grid>
+
+        <!-- Option pas acceptée -->
+        <VerticalStackLayout IsVisible="{Binding IsNotOptIn}"
+                             VerticalOptions="Center"
+                             HorizontalOptions="Center"
+                             Spacing="20"
+                             Padding="40">
+
+            <Label Text="🔒"
+                   FontSize="72"
+                   HorizontalOptions="Center" />
+
+            <Label Text="Communauté non activée"
+                   TextColor="White"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center" />
+
+            <Label Text="Activez votre participation à la Communauté dans vos Paramètres pour voir les statistiques des autres membres."
+                   TextColor="#aaa"
+                   FontSize="14"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center" />
+
+            <Button Text="Aller aux Paramètres →"
+                    Command="{Binding GoToProfileCommand}"
+                    BackgroundColor="#3A7AFE"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    FontSize="15"
+                    CornerRadius="100"
+                    HeightRequest="52"
+                    Margin="0,12,0,0" />
+
+        </VerticalStackLayout>
+
+        <!-- Liste de membres-->
+        <CollectionView IsVisible="{Binding IsOptIn}"
+                        ItemsSource="{Binding Members}"
+                        Margin="0,12,0,0">
+
+            <CollectionView.EmptyView>
+                <VerticalStackLayout VerticalOptions="Center"
+                                     HorizontalOptions="Center"
+                                     Spacing="12" Padding="32">
+                    <Label Text="👥" FontSize="48" HorizontalOptions="Center" />
+                    <Label Text="Aucun membre pour l'instant"
+                           TextColor="#666" FontSize="15"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:CommunityMember">
+                    <Border BackgroundColor="#0a0a0a"
+                            Stroke="#3A7AFE"
+                            StrokeThickness="1.5"
+                            StrokeShape="RoundRectangle 16"
+                            Margin="16,0,16,12"
+                            Padding="16">
+
+                        <VerticalStackLayout Spacing="12">
+
+                            <!-- User -->
+                            <Label Text="{Binding Username}"
+                                   TextColor="White"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center" />
+
+                            <!-- Stats -->
+                            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+
+                                <!-- ACQUIS -->
+                                <Border Grid.Column="0"
+                                        BackgroundColor="#2a1f00"
+                                        Stroke="#F5C42B"
+                                        StrokeThickness="1.5"
+                                        StrokeShape="RoundRectangle 10"
+                                        Padding="8,10">
+                                    <VerticalStackLayout HorizontalOptions="Center" Spacing="6">
+                                        <Label Text="Acquis"
+                                               TextColor="#F5C42B"
+                                               FontSize="13"
+                                               FontAttributes="Bold"
+                                               HorizontalOptions="Center" />
+                                        <Label Text="{Binding Stats.Acquis, StringFormat='⊕ {0}'}"
+                                               TextColor="#F5C42B"
+                                               FontSize="22"
+                                               FontAttributes="Bold"
+                                               HorizontalOptions="Center" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- TERMINÉS -->
+                                <Border Grid.Column="1"
+                                        BackgroundColor="#001a00"
+                                        Stroke="#76E16C"
+                                        StrokeThickness="1.5"
+                                        StrokeShape="RoundRectangle 10"
+                                        Padding="8,10">
+                                    <VerticalStackLayout HorizontalOptions="Center" Spacing="6">
+                                        <Label Text="Terminés"
+                                               TextColor="#76E16C"
+                                               FontSize="13"
+                                               FontAttributes="Bold"
+                                               HorizontalOptions="Center" />
+                                        <Label Text="{Binding Stats.Termine, StringFormat='✦ {0}'}"
+                                               TextColor="#76E16C"
+                                               FontSize="22"
+                                               FontAttributes="Bold"
+                                               HorizontalOptions="Center" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- SOUHAITÉS -->
+                                <Border Grid.Column="2"
+                                        BackgroundColor="#1a0010"
+                                        Stroke="#FF6B9D"
+                                        StrokeThickness="1.5"
+                                        StrokeShape="RoundRectangle 10"
+                                        Padding="8,10">
+                                    <VerticalStackLayout HorizontalOptions="Center" Spacing="6">
+                                        <Label Text="Souhaités"
+                                               TextColor="#FF6B9D"
+                                               FontSize="13"
+                                               FontAttributes="Bold"
+                                               HorizontalOptions="Center" />
+                                        <Label Text="{Binding Stats.Wishlist, StringFormat='♥ {0}'}"
+                                               TextColor="#FF6B9D"
+                                               FontSize="22"
+                                               FontAttributes="Bold"
+                                               HorizontalOptions="Center" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+        </CollectionView>
+    </Grid>
 </ContentPage>
