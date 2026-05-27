@@ -1,12 +1,191 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:TPI_ArcaludoApp.ViewModels"
+             xmlns:models="clr-namespace:TPI_ArcaludoApp.Models"
              x:Class="TPI_ArcaludoApp.Pages.WishlistPage"
-             Title="WishlistPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             BackgroundColor="#000000"
+             Title="{Binding WishlistTitle}">
+
+    <ContentPage.BindingContext>
+        <vm:WishlistViewModel />
+    </ContentPage.BindingContext>
+
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <!-- Recherche -->
+        <Border Grid.Row="0"
+                BackgroundColor="#1a1a1a"
+                Stroke="Transparent"
+                StrokeShape="RoundRectangle 100"
+                Margin="16,12,16,8">
+            <HorizontalStackLayout Padding="14,0" Spacing="8">
+                <Label Text="🔍" FontSize="16" VerticalOptions="Center" />
+                <Entry Placeholder="Rechercher un jeu..."
+                       PlaceholderColor="#666"
+                       TextColor="White"
+                       BackgroundColor="Transparent"
+                       Text="{Binding SearchText}"
+                       ReturnCommand="{Binding SearchCommand}"
+                       HorizontalOptions="FillAndExpand" />
+            </HorizontalStackLayout>
+        </Border>
+
+        <!-- fILTRAGE + TRI -->
+        <ScrollView Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalScrollBarVisibility="Never"
+                    Margin="16,0,16,8">
+            <HorizontalStackLayout Spacing="8">
+                <Button Text="+Notés"
+                        Command="{Binding SortCommand}"
+                        CommandParameter="notes"
+                        BackgroundColor="{Binding NotesButtonColor}"
+                        TextColor="White" FontSize="13"
+                        CornerRadius="100" Padding="16,8" HeightRequest="36" />
+                <Button Text="À venir"
+                        Command="{Binding SortCommand}"
+                        CommandParameter="avenir"
+                        BackgroundColor="{Binding AvenirButtonColor}"
+                        TextColor="White" FontSize="13"
+                        CornerRadius="100" Padding="16,8" HeightRequest="36" />
+                <Button Text="A - Z"
+                        Command="{Binding SortCommand}"
+                        CommandParameter="az"
+                        BackgroundColor="{Binding AZButtonColor}"
+                        TextColor="White" FontSize="13"
+                        CornerRadius="100" Padding="16,8" HeightRequest="36" />
+                <Button Text="Z - A"
+                        Command="{Binding SortCommand}"
+                        CommandParameter="za"
+                        BackgroundColor="{Binding ZAButtonColor}"
+                        TextColor="White" FontSize="13"
+                        CornerRadius="100" Padding="16,8" HeightRequest="36" />
+            </HorizontalStackLayout>
+        </ScrollView>
+
+        <!-- Liste -->
+        <CollectionView Grid.Row="2" ItemsSource="{Binding Games}">
+
+            <CollectionView.EmptyView>
+                <VerticalStackLayout VerticalOptions="Center"
+                                     HorizontalOptions="Center"
+                                     Spacing="12" Padding="32">
+                    <Label Text="♥" FontSize="48"
+                           TextColor="#FF6B9D"
+                           HorizontalOptions="Center" />
+                    <Label Text="Votre liste de souhaits est vide"
+                           TextColor="#666" FontSize="15"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:CollectionGame">
+                    <Border BackgroundColor="#0a0a0a"
+                            Stroke="#FF6B9D"
+                            StrokeThickness="1.5"
+                            StrokeShape="RoundRectangle 14"
+                            Margin="16,0,16,10">
+                        <Grid ColumnDefinitions="110,*" Padding="0">
+
+                            <!-- Img -->
+                            <Image Grid.Column="0"
+                                   Source="{Binding GamCoverUrl}"
+                                   HeightRequest="140"
+                                   WidthRequest="110"
+                                   Aspect="AspectFill"
+                                   BackgroundColor="#1a1a1a" />
+
+                            <!-- INFOS -->
+                            <Grid Grid.Column="1"
+                                  RowDefinitions="*,Auto"
+                                  Padding="12,10">
+
+                                <!-- Bouton info -->
+                                <Button Grid.Row="0"
+                                        Text="ℹ"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:WishlistViewModel}}, Path=GoToDetailCommand}"
+                                        CommandParameter="{Binding .}"
+                                        BackgroundColor="Transparent"
+                                        TextColor="#aaa"
+                                        FontSize="16"
+                                        HorizontalOptions="End"
+                                        VerticalOptions="Start"
+                                        WidthRequest="32"
+                                        HeightRequest="32"
+                                        Padding="0" />
+
+                                <VerticalStackLayout Grid.Row="0"
+                                                     Spacing="4"
+                                                     VerticalOptions="Start"
+                                                     Margin="0,0,32,0">
+                                    <Label Text="{Binding GamTitle}"
+                                           TextColor="White"
+                                           FontSize="15"
+                                           FontAttributes="Bold"
+                                           LineBreakMode="TailTruncation" />
+                                    <HorizontalStackLayout Spacing="6">
+                                        <Label Text="⊞" TextColor="#aaa" FontSize="12" VerticalOptions="Center" />
+                                        <Label Text="{Binding GamDeveloper}"
+                                               TextColor="#aaa" FontSize="12" />
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout Spacing="6">
+                                        <Label Text="🧩" TextColor="#aaa" FontSize="12" VerticalOptions="Center" />
+                                        <Label Text="{Binding GamGenre}"
+                                               TextColor="#aaa" FontSize="12" />
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout Spacing="6">
+                                        <Label Text="🖥" TextColor="#aaa" FontSize="12" VerticalOptions="Center" />
+                                        <Label Text="{Binding GamPlatforms}"
+                                               TextColor="#aaa" FontSize="12"
+                                               LineBreakMode="TailTruncation"
+                                               MaxLines="1" />
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout Spacing="6">
+                                        <Label Text="📅" TextColor="#aaa" FontSize="12" VerticalOptions="Center" />
+                                        <Label Text="{Binding ReleaseYear}"
+                                               TextColor="#aaa" FontSize="12" />
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+
+                                <!-- Boutons-->
+                                <HorizontalStackLayout Grid.Row="1"
+                                                       HorizontalOptions="End"
+                                                       Spacing="8"
+                                                       Margin="0,8,0,0">
+
+                                    <!-- Ajouter à la collection -->
+                                    <Button Text="➕"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:WishlistViewModel}}, Path=MoveToCollectionCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#1a1a1a"
+                                            TextColor="#F5C42B"
+                                            FontSize="18"
+                                            WidthRequest="42"
+                                            HeightRequest="42"
+                                            CornerRadius="21"
+                                            Padding="0" />
+
+                                    <!-- Retirer des souhaits -->
+                                    <Button Text="♥"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:WishlistViewModel}}, Path=DeleteCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#1a1a1a"
+                                            TextColor="#FF6B9D"
+                                            FontSize="20"
+                                            WidthRequest="42"
+                                            HeightRequest="42"
+                                            CornerRadius="21"
+                                            Padding="0" />
+
+                                </HorizontalStackLayout>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+        </CollectionView>
+    </Grid>
 </ContentPage>
