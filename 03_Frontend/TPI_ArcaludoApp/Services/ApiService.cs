@@ -16,7 +16,8 @@ namespace TPI_ArcaludoApp.Services
     public class ApiService
     {
         private readonly HttpClient _httpClient;
-        private const string _baseUrl = "http://10.0.2.2:8080/api/";
+        //private const string _baseUrl = "http://10.0.2.2:8080/api/"; Emulateur
+        private const string _baseUrl = "http://localhost:8080/api/";
 
         public class LoginResponse
         {

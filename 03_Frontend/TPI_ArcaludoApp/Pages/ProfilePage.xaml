@@ -57,7 +57,7 @@
                             </HorizontalStackLayout>
                         </VerticalStackLayout>
 
-                        <!-- Bouton Partager -->
+                        <!-- Partager -->
                         <Border Grid.Column="1"
                                 Stroke="#3A7AFE"
                                 StrokeThickness="1.5"
@@ -84,7 +84,7 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!-- CARD STATISTIQUES -->
+            <!-- Stats -->
             <Border BackgroundColor="#0a0a0a"
                     Stroke="#2a2a2a"
                     StrokeThickness="1"
@@ -167,7 +167,48 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!-- BOUTON DÉCONNEXION -->
+            <Border BackgroundColor="#0a0a0a"
+        Stroke="#2a2a2a"
+        StrokeThickness="1"
+        StrokeShape="RoundRectangle 16"
+        Padding="16"
+        Margin="0,0,0,12">
+                <VerticalStackLayout Spacing="10">
+
+                    <Label Text="Communauté"
+               TextColor="White"
+               FontSize="15"
+               FontAttributes="Bold" />
+
+                    <Label Text="Partagez vos statistiques avec les autres membres de la communauté Arcaludo."
+               TextColor="#aaa"
+               FontSize="12" />
+
+                    <!-- TOGGLE Communauté -->
+                    <Button Text="{Binding CommunityButtonText}"
+                Command="{Binding ToggleCommunityCommand}"
+                BackgroundColor="{Binding CommunityButtonColor}"
+                TextColor="White"
+                FontAttributes="Bold"
+                FontSize="14"
+                CornerRadius="100"
+                HeightRequest="46" />
+
+                    <!-- Conditions d'utilisation nLDP -->
+                    <Button Text="📄 Conditions d'utilisation"
+                Command="{Binding ShowTermsCommand}"
+                BackgroundColor="Transparent"
+                TextColor="#3A7AFE"
+                FontSize="13"
+                CornerRadius="100"
+                HeightRequest="40"
+                BorderColor="#3A7AFE"
+                BorderWidth="1" />
+
+                </VerticalStackLayout>
+            </Border>
+            
+            <!-- Se deconnecter -->
             <Button Text="Se déconnecter"
                     Command="{Binding LogoutCommand}"
                     BackgroundColor="Transparent"
@@ -180,7 +221,7 @@
                     HeightRequest="50"
                     Margin="0,0,0,12" />
 
-            <!-- BOUTON SUPPRIMER COMPTE -->
+            <!-- Supprimer compte-->
             <Button Text="Supprimer mon compte"
                     Command="{Binding DeleteAccountCommand}"
                     BackgroundColor="Transparent"
