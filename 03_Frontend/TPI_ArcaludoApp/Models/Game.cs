@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Maui.Controls;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -41,14 +42,47 @@ namespace TPI_ArcaludoApp.Models
         [JsonProperty("description")]
         public string Description { get; set; }
 
+        private bool _inCollection;
+
         [JsonProperty("inCollection")]
-        public bool InCollection { get; set; }
+        public bool InCollection 
+        {
+            get => _inCollection;
+            set
+            {
+                _inCollection = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(NotInCollection));
+            }
+        }
+        public bool NotInCollection => !_inCollection;
 
         [JsonProperty("collectionEntry")]
         public CollectionEntry CollectionEntry { get; set; }
 
-        public string ReleaseYear => ReleaseDate?.Length >= 4 ? ReleaseDate[..4] : "";
-        public string MetacriticDisplay => Metacritic.HasValue ? $"★ {Metacritic}" : "";
+        public ImageSource CoverImageSource =>
+            string.IsNullOrEmpty(CoverUrl) ? null : ImageSource.FromUri(new Uri(CoverUrl));
+
+        public string ReleaseYear
+        {
+            get
+            {
+                if (ReleaseDate == null || ReleaseDate.Length < 4) return "";
+                 
+                return ReleaseDate.Substring(0, 4);
+            }
+        }
+        public string MetacriticDisplay
+        {
+            get
+            {
+                if (Metacritic == null)
+                {
+                    return "N/A";
+                }
+                return "★ " + Metacritic;
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)

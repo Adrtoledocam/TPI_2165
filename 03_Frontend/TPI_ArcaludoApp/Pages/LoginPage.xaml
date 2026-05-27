@@ -37,10 +37,7 @@
                     Stroke="Transparent"
                     StrokeShape="RoundRectangle 100"
                     Margin="0,0,0,12">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnBorderTapped" />
-                </Border.GestureRecognizers>
-                <HorizontalStackLayout Padding="16,0" Spacing="10" InputTransparent="True">
+                <HorizontalStackLayout Padding="16,0" Spacing="10" >
                     <Label Text="@" TextColor="#aaa" FontSize="18"
                            VerticalOptions="Center" />
                     <Entry 
@@ -59,7 +56,7 @@
                     Stroke="Transparent"
                     StrokeShape="RoundRectangle 100"
                     Margin="0,0,0,32">
-                <HorizontalStackLayout Padding="16,0" Spacing="10" InputTransparent="True">
+                <HorizontalStackLayout Padding="16,0" Spacing="10">
                     <Label Text="🔑" FontSize="18"
                            VerticalOptions="Center" />
                     <Entry Placeholder="Mot de passe"

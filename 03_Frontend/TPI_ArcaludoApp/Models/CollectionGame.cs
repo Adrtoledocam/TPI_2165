@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Maui.Controls;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,6 +54,9 @@ namespace TPI_ArcaludoApp.Models
 
         [JsonProperty("gamReleaseDate")]
         public string GamReleaseDate { get; set; }
+
+        public ImageSource CoverImageSource =>
+            string.IsNullOrEmpty(GamCoverUrl) ? null : ImageSource.FromUri(new Uri(GamCoverUrl));
 
         public string ReleaseYear => GamReleaseDate?.Length >= 4 ? GamReleaseDate[..4] : "";
         public string StatusDisplay => ColStatus switch

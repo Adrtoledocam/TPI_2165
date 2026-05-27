@@ -74,10 +74,29 @@ namespace TPI_ArcaludoApp.ViewModels
             }
         }
 
+        private bool _communityOptIn = false;
+        public bool CommunityOptIn
+        {
+            get => _communityOptIn;
+            set
+            {
+                _communityOptIn = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CommunityButtonText));
+                OnPropertyChanged(nameof(CommunityButtonColor));
+            }
+        }
+
+        public string CommunityButtonText => _communityOptIn ? "✓ Communauté activée" : "Participer à la Communauté";
+        public string CommunityButtonColor => _communityOptIn ? "#76E16C" : "#2a2a2a";
+
+
         public ICommand LoadCommand { get; }
         public ICommand LogoutCommand { get; }
         public ICommand DeleteAccountCommand { get; }
         public ICommand ShareProfileCommand { get; }
+        public ICommand ToggleCommunityCommand { get; }
+        public ICommand ShowTermsCommand { get; }
 
         public ProfileViewModel()
         {
@@ -86,6 +105,8 @@ namespace TPI_ArcaludoApp.ViewModels
             LogoutCommand = new Command(async () => await ExecuteLogout());
             DeleteAccountCommand = new Command(async () => await ExecuteDeleteAccount());
             ShareProfileCommand = new Command(async () => await ExecuteShareProfile());
+            ToggleCommunityCommand = new Command(async () => await ExecuteToggleCommunity());
+            ShowTermsCommand = new Command(async () => await ExecuteShowTerms());
         }
 
         public async Task LoadProfileAsync()
@@ -103,6 +124,8 @@ namespace TPI_ArcaludoApp.ViewModels
             {
                 CurrentUser = user;
             }
+            bool currentOptIn = Preferences.Get("community_opt_in", false);
+            CommunityOptIn = currentOptIn;
         }
 
         private async Task ExecuteLogout()
@@ -161,5 +184,58 @@ namespace TPI_ArcaludoApp.ViewModels
                     "Erreur", "Impossible de supprimer le compte.", "OK");
             }
         }
+
+        private async Task ExecuteToggleCommunity()
+        {
+            string token = await SecureStorage.GetAsync("auth_token");
+            if (string.IsNullOrEmpty(token)) return;
+
+            bool newValue = !_communityOptIn;
+
+            // Confirmer si l'utilisateur désactive
+            if (!newValue)
+            {
+                bool confirm = await Shell.Current.DisplayAlert(
+                    "Quitter la Communauté",
+                    "Vos statistiques ne seront plus visibles par les autres membres.",
+                    "Confirmer", "Annuler");
+                if (!confirm) return;
+            }
+
+            bool success = await _apiService.UpdateCommunityOptInAsync(token, newValue);
+
+            if (success)
+            {
+                CommunityOptIn = newValue;
+                Preferences.Set("community_opt_in", newValue);
+
+                string message = newValue
+                    ? "Vous participez maintenant à la Communauté !"
+                    : "Vous avez quitté la Communauté.";
+                await Shell.Current.DisplayAlert("✓", message, "OK");
+            }
+        }
+
+        private async Task ExecuteShowTerms()
+        {
+            // ← Remplacez ce texte par vos CGU définitives
+            string termsText =
+                "CONDITIONS D'UTILISATION — ARCALUDO\n\n" +
+                "1. Informations partagées\n" +
+                "En activant la Communauté, votre nom d'utilisateur et vos statistiques " +
+                "(jeux acquis, terminés, souhaités) sont visibles publiquement.\n\n" +
+                "2. Données privées\n" +
+                "Votre adresse email, vos commentaires et vos temps de jeu restent strictement privés.\n\n" +
+                "3. Conformité nLPD et RGPD\n" +
+                "Conformément à la loi suisse sur la protection des données, " +
+                "vous pouvez retirer votre consentement à tout moment depuis cette page.\n\n" +
+                "4. Droits\n" +
+                "Vous disposez d'un droit d'accès, de rectification et d'effacement " +
+                "de vos données via la fonction 'Supprimer mon compte'.\n\n" +
+                "ETML · TPI 2165 · Adrian Toledo";
+
+            await Shell.Current.DisplayAlert("Conditions d'utilisation", termsText, "Fermer");
+        }
+
     }
 }

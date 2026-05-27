@@ -99,13 +99,18 @@
                             StrokeThickness="1.5"
                             StrokeShape="RoundRectangle 14"
                             Margin="16,0,16,10">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CollectionViewModel}}, Path=SelectGameCommand}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
                         <Grid>
                             <!-- Contenu de la carte -->
                             <Grid ColumnDefinitions="120,*">
 
                                 <!-- Image de couverture -->
                                 <Image Grid.Column="0"
-                                       Source="{Binding GamCoverUrl}"
+                                       Source="{Binding CoverImageSource}"
                                        HeightRequest="130"
                                        WidthRequest="120"
                                        Aspect="AspectFill"
@@ -168,15 +173,15 @@
                                 </VerticalStackLayout>
                             </Grid>
 
-                            <!-- Bouton info -->
+                            <!-- Bouton supprimer -->
                             <Button HorizontalOptions="End"
                                     VerticalOptions="Start"
                                     Margin="0,6,6,0"
-                                    Text="ℹ"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CollectionViewModel}}, Path=SelectGameCommand}"
+                                    Text="🗑"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CollectionViewModel}}, Path=DeleteGameCommand}"
                                     CommandParameter="{Binding .}"
                                     BackgroundColor="#2a2a2a"
-                                    TextColor="White"
+                                    TextColor="#E74C3C"
                                     FontSize="14"
                                     WidthRequest="32"
                                     HeightRequest="32"
