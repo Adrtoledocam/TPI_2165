@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -10,13 +10,11 @@ using TPI_ArcaludoApp.Services;
 
 namespace TPI_ArcaludoApp.ViewModels
 {
-    // QueryProperty reçoit le gamId depuis la navigation Shell
     [QueryProperty(nameof(GamId), "gamId")]
     public class GameDetailViewModel : BaseViewModel
     {
         private readonly ApiService _apiService;
 
-        // Info
         private Game _game;
         public Game CurrentGame
         {
@@ -52,49 +50,49 @@ namespace TPI_ArcaludoApp.ViewModels
             }
         }
 
-        public string AcquisColor => _selectedStatus == "acquis" ? "#3A7AFE" : "#2a2a2a";
-        public string PlayingColor => _selectedStatus == "playing" ? "#3A7AFE" : "#2a2a2a";
-        public string TermineColor => _selectedStatus == "termine" ? "#3A7AFE" : "#2a2a2a";
+        public string AcquisColor  => _selectedStatus == "acquis"   ? "#3A7AFE" : "#2a2a2a";
+        public string PlayingColor => _selectedStatus == "playing"  ? "#3A7AFE" : "#2a2a2a";
+        public string TermineColor => _selectedStatus == "termine"  ? "#3A7AFE" : "#2a2a2a";
         public string WishlistColor => _selectedStatus == "wishlist" ? "#3A7AFE" : "#2a2a2a";
 
         // Plateformes
         public ObservableCollection<PlatformItem> Platforms { get; } = new ObservableCollection<PlatformItem>();
 
-        // Données personnelles
+        // Temps de jeu
         private int _playtime = 0;
         public int Playtime
         {
             get => _playtime;
-            set { _playtime = value; OnPropertyChanged(); OnPropertyChanged(nameof(PlaytimeDisplay)); }
+            set { _playtime = value; OnPropertyChanged(); OnPropertyChanged(nameof(PlaytimeText)); }
         }
 
-        public string PlaytimeDisplay
+        public string PlaytimeText
         {
-            get { return _playtime + "h"; }
+            get => _playtime > 0 ? _playtime.ToString() : "";
+            set
+            {
+                _playtime = int.TryParse(value, out int h) ? Math.Max(0, h) : 0;
+                OnPropertyChanged();
+            }
         }
 
+        // Note
         private int _rating = 0;
         public int Rating
         {
             get => _rating;
-            set
-            {
-                _rating = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(Star1));
-                OnPropertyChanged(nameof(Star2));
-                OnPropertyChanged(nameof(Star3));
-                OnPropertyChanged(nameof(Star4));
-                OnPropertyChanged(nameof(Star5));
-            }
+            set { _rating = value; OnPropertyChanged(); OnPropertyChanged(nameof(RatingText)); }
         }
 
-        // Étoiles Rating
-        public string Star1 => _rating >= 1 ? "★" : "☆";
-        public string Star2 => _rating >= 2 ? "★" : "☆";
-        public string Star3 => _rating >= 3 ? "★" : "☆";
-        public string Star4 => _rating >= 4 ? "★" : "☆";
-        public string Star5 => _rating >= 5 ? "★" : "☆";
+        public string RatingText
+        {
+            get => _rating > 0 ? _rating.ToString() : "";
+            set
+            {
+                _rating = int.TryParse(value, out int r) ? Math.Max(0, Math.Min(5, r)) : 0;
+                OnPropertyChanged();
+            }
+        }
 
         private string _comment = "";
         public string Comment
@@ -103,14 +101,10 @@ namespace TPI_ArcaludoApp.ViewModels
             set { _comment = value; OnPropertyChanged(); }
         }
 
-
         private int? _colId = null;
 
         public ICommand SelectStatusCommand { get; }
         public ICommand TogglePlatformCommand { get; }
-        public ICommand SetRatingCommand { get; }
-        public ICommand AddPlaytimeCommand { get; }
-        public ICommand RemovePlaytimeCommand { get; }
         public ICommand SaveCommand { get; }
         public ICommand RemoveFromCollectionCommand { get; }
         public ICommand GoBackCommand { get; }
@@ -119,14 +113,11 @@ namespace TPI_ArcaludoApp.ViewModels
         {
             _apiService = new ApiService();
 
-            SelectStatusCommand = new Command<string>((string s) => SelectedStatus = s);
-            TogglePlatformCommand = new Command<PlatformItem>((PlatformItem p) => p.IsSelected = !p.IsSelected);
-            SetRatingCommand = new Command<string>((string r) => Rating = int.Parse(r));
-            AddPlaytimeCommand = new Command(() => Playtime = Playtime + 1);
-            RemovePlaytimeCommand = new Command(() => { if (Playtime > 0) Playtime = Playtime - 1; });
-            SaveCommand = new Command(async () => await ExecuteSave());
+            SelectStatusCommand    = new Command<string>((string s) => SelectedStatus = s);
+            TogglePlatformCommand  = new Command<PlatformItem>((PlatformItem p) => p.IsSelected = !p.IsSelected);
+            SaveCommand            = new Command(async () => await ExecuteSave());
             RemoveFromCollectionCommand = new Command(async () => await ExecuteRemove());
-            GoBackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
+            GoBackCommand          = new Command(async () => await Shell.Current.GoToAsync(".."));
 
             InitPlatforms();
         }
@@ -140,51 +131,40 @@ namespace TPI_ArcaludoApp.ViewModels
             };
 
             foreach (string name in platformNames)
-            {
                 Platforms.Add(new PlatformItem { Name = name, IsSelected = false });
-            }
         }
 
         public async Task LoadGameAsync()
         {
             string token = await SecureStorage.GetAsync("auth_token");
-
             if (string.IsNullOrEmpty(token)) return;
 
             Game game = await _apiService.GetGameDetailAsync(token, _gamId);
-
             if (game == null) return;
 
-            // Mise à jour sur le thread UI
             Microsoft.Maui.ApplicationModel.MainThread.BeginInvokeOnMainThread(() =>
             {
                 CurrentGame = game;
 
-                // Si le jeu est déjà dans la collection → pré-remplir les champs
                 if (game.CollectionEntry != null)
                 {
                     CollectionEntry entry = game.CollectionEntry;
-                    _colId = entry.ColId;
-                    SelectedStatus = entry.ColStatus ?? "";
-                    Rating = entry.ColRating ?? 0;
-                    Comment = entry.ColComment ?? "";
-                    Playtime = entry.ColPlaytime ?? 0;
+                    _colId          = entry.ColId;
+                    SelectedStatus  = entry.ColStatus ?? "";
+                    Rating          = entry.ColRating ?? 0;
+                    Comment         = entry.ColComment ?? "";
+                    Playtime        = entry.ColPlaytime ?? 0;
 
-                    // Cocher les plateformes déjà sélectionnées
                     if (!string.IsNullOrEmpty(entry.ColOwnPlatforms))
                     {
                         string[] saved = entry.ColOwnPlatforms.Split(',');
-
                         foreach (PlatformItem platform in Platforms)
                         {
                             platform.IsSelected = false;
-
                             foreach (string savedName in saved)
                             {
                                 if (platform.Name == savedName.Trim())
-                                {
                                     platform.IsSelected = true;
-                                }
                             }
                         }
                     }
@@ -195,15 +175,11 @@ namespace TPI_ArcaludoApp.ViewModels
         private string GetSelectedPlatforms()
         {
             List<string> selected = new List<string>();
-
             foreach (PlatformItem platform in Platforms)
             {
                 if (platform.IsSelected)
-                {
                     selected.Add(platform.Name);
-                }
             }
-
             return string.Join(",", selected);
         }
 
@@ -223,7 +199,6 @@ namespace TPI_ArcaludoApp.ViewModels
 
             if (_colId != null)
             {
-                // Jeu déjà dans la collection → PUT
                 success = await _apiService.UpdateCollectionEntryAsync(
                     token, _colId.Value, _selectedStatus,
                     _rating > 0 ? _rating : null,
@@ -233,7 +208,6 @@ namespace TPI_ArcaludoApp.ViewModels
             }
             else
             {
-                // Nouveau jeu → POST
                 success = await _apiService.AddToCollectionAsync(
                     token, _game, _selectedStatus, ownPlatforms);
             }
@@ -255,18 +229,14 @@ namespace TPI_ArcaludoApp.ViewModels
 
             bool confirm = await Shell.Current.DisplayAlert(
                 "Retirer", "Retirer ce jeu de votre collection ?", "Oui", "Non");
-
             if (!confirm) return;
 
             string token = await SecureStorage.GetAsync("auth_token");
             if (string.IsNullOrEmpty(token)) return;
 
             bool success = await _apiService.DeleteFromCollectionAsync(token, _colId.Value);
-
             if (success)
-            {
                 await Shell.Current.GoToAsync("..");
-            }
         }
     }
 }

@@ -37,7 +37,7 @@
             </Grid>
 
             <!-- COVER PLEINE LARGEUR -->
-            <Image Source="{Binding CurrentGame.CoverUrl}"
+            <Image Source="{Binding CurrentGame.CoverImageSource}"
                    HeightRequest="220"
                    Aspect="AspectFill" />
 
@@ -62,16 +62,19 @@
                         <Label Text="{Binding CurrentGame.Developer}"
                                TextColor="#aaa" FontSize="12" />
                     </HorizontalStackLayout>
-                    <Label Grid.Column="2"
-                           Text="{Binding CurrentGame.ReleaseYear}"
-                           TextColor="#aaa" FontSize="12" />
+                    <HorizontalStackLayout Grid.Column="2" Spacing="4">
+                        <Label Text="📅" TextColor="#aaa" FontSize="12" VerticalOptions="Center" />
+                        <Label Text="{Binding CurrentGame.ReleaseYear}"
+                               TextColor="#aaa" FontSize="12" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
                 </Grid>
 
                 <!-- GENRES -->
-                <Label Text="{Binding CurrentGame.Genre}"
-                       TextColor="#aaa"
-                       FontSize="12"
-                       Margin="0,0,0,16" />
+                <HorizontalStackLayout Spacing="4" Margin="0,0,0,16">
+                    <Label Text="🧩" TextColor="#aaa" FontSize="12" VerticalOptions="Center" />
+                    <Label Text="{Binding CurrentGame.Genre}"
+                           TextColor="#aaa" FontSize="12" VerticalOptions="Center" />
+                </HorizontalStackLayout>
 
                 <!-- ── STATUT ── -->
                 <Grid ColumnDefinitions="*,Auto,*" Margin="0,0,0,12">
@@ -157,34 +160,30 @@
                         StrokeShape="RoundRectangle 12"
                         Padding="16,12"
                         Margin="0,0,0,10">
-                    <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto">
                         <Label Grid.Column="0" Text="⏱" FontSize="18" VerticalOptions="Center" />
                         <Label Grid.Column="1" Text="Temps de jeu"
                                TextColor="White" FontSize="14"
                                FontAttributes="Bold" VerticalOptions="Center"
                                Margin="10,0" />
-                        <Button Grid.Column="2" Text="−"
-                                Command="{Binding RemovePlaytimeCommand}"
-                                BackgroundColor="#2a2a2a"
-                                TextColor="White" FontSize="16"
-                                WidthRequest="36" HeightRequest="36"
-                                CornerRadius="18" Padding="0" />
-                        <Label Grid.Column="3"
-                               Text="{Binding PlaytimeDisplay}"
+                        <Entry Grid.Column="2"
+                               Text="{Binding PlaytimeText}"
+                               Keyboard="Numeric"
                                TextColor="#3A7AFE"
+                               BackgroundColor="Transparent"
                                FontSize="16" FontAttributes="Bold"
+                               HorizontalTextAlignment="End"
+                               WidthRequest="60"
                                VerticalOptions="Center"
-                               Margin="12,0" />
-                        <Button Grid.Column="4" Text="+"
-                                Command="{Binding AddPlaytimeCommand}"
-                                BackgroundColor="#2a2a2a"
-                                TextColor="White" FontSize="16"
-                                WidthRequest="36" HeightRequest="36"
-                                CornerRadius="18" Padding="0" />
+                               Placeholder="0"
+                               PlaceholderColor="#555" />
+                        <Label Grid.Column="3" Text="h"
+                               TextColor="#3A7AFE" FontSize="14"
+                               VerticalOptions="Center" Margin="4,0,0,0" />
                     </Grid>
                 </Border>
 
-                <!-- MA NOTE (étoiles) -->
+                <!-- MA NOTE -->
                 <Border BackgroundColor="#0a0a0a"
                         Stroke="#2a2a2a"
                         StrokeShape="RoundRectangle 12"
@@ -197,37 +196,20 @@
                                TextColor="White" FontSize="14"
                                FontAttributes="Bold" VerticalOptions="Center"
                                Margin="10,0" />
-                        <HorizontalStackLayout Grid.Column="2" Spacing="4">
-                            <Label Text="{Binding Star1}" TextColor="#3A7AFE" FontSize="24"
-                                   FontAttributes="Bold">
-                                <Label.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding SetRatingCommand}" CommandParameter="1" />
-                                </Label.GestureRecognizers>
-                            </Label>
-                            <Label Text="{Binding Star2}" TextColor="#3A7AFE" FontSize="24"
-                                   FontAttributes="Bold">
-                                <Label.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding SetRatingCommand}" CommandParameter="2" />
-                                </Label.GestureRecognizers>
-                            </Label>
-                            <Label Text="{Binding Star3}" TextColor="#3A7AFE" FontSize="24"
-                                   FontAttributes="Bold">
-                                <Label.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding SetRatingCommand}" CommandParameter="3" />
-                                </Label.GestureRecognizers>
-                            </Label>
-                            <Label Text="{Binding Star4}" TextColor="#3A7AFE" FontSize="24"
-                                   FontAttributes="Bold">
-                                <Label.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding SetRatingCommand}" CommandParameter="4" />
-                                </Label.GestureRecognizers>
-                            </Label>
-                            <Label Text="{Binding Star5}" TextColor="#3A7AFE" FontSize="24"
-                                   FontAttributes="Bold">
-                                <Label.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding SetRatingCommand}" CommandParameter="5" />
-                                </Label.GestureRecognizers>
-                            </Label>
+                        <HorizontalStackLayout Grid.Column="2" Spacing="4" VerticalOptions="Center">
+                            <Entry Text="{Binding RatingText}"
+                                   Keyboard="Numeric"
+                                   TextColor="#3A7AFE"
+                                   BackgroundColor="Transparent"
+                                   FontSize="16" FontAttributes="Bold"
+                                   HorizontalTextAlignment="Center"
+                                   WidthRequest="44"
+                                   VerticalOptions="Center"
+                                   Placeholder="0"
+                                   PlaceholderColor="#555" />
+                            <Label Text="/ 5"
+                                   TextColor="#aaa" FontSize="14"
+                                   VerticalOptions="Center" />
                         </HorizontalStackLayout>
                     </Grid>
                 </Border>
