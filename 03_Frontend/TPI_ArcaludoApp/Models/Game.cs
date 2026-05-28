@@ -57,6 +57,12 @@ namespace TPI_ArcaludoApp.Models
         }
         public bool NotInCollection => !_inCollection;
 
+        // True si pas d'image de couverture → afficher logo
+        public bool HasNoCover
+        {
+            get { return string.IsNullOrEmpty(CoverUrl); }
+        }
+
         [JsonProperty("collectionEntry")]
         public CollectionEntry CollectionEntry { get; set; }
 

@@ -124,8 +124,25 @@ namespace TPI_ArcaludoApp.ViewModels
             {
                 CurrentUser = user;
             }
-            bool currentOptIn = Preferences.Get("community_opt_in", false);
-            CommunityOptIn = currentOptIn;
+
+            // Lire l'état opt-in DEPUIS L'API (pas seulement les Preferences)
+            // pour que l'état soit correct même après relance de l'app
+            await LoadCommunityOptInAsync(token);
+        }
+
+        private async Task LoadCommunityOptInAsync(string token)
+        {
+            try
+            {
+                bool optIn = await _apiService.GetCommunityOptInAsync(token);
+                CommunityOptIn = optIn;
+                Preferences.Set("community_opt_in", optIn);
+            }
+            catch
+            {
+                // Fallback : lire depuis les préférences locales
+                CommunityOptIn = Preferences.Get("community_opt_in", false);
+            }
         }
 
         private async Task ExecuteLogout()

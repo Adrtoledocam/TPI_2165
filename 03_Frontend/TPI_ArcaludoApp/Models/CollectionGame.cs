@@ -90,5 +90,11 @@ namespace TPI_ArcaludoApp.Models
                 return "#777777";
             }
         }
+
+        // True si l'utilisateur a des plateformes renseignées
+        public bool HasOwnPlatforms
+        {
+            get { return !string.IsNullOrEmpty(ColOwnPlatforms); }
+        }
     }
 }

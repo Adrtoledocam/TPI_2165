@@ -14,12 +14,17 @@ namespace TPI_ArcaludoApp.ViewModels
     {
         private readonly ApiService _apiService;
 
+        // Liste complète chargée depuis l'API
+        private List<Game> _allGames = new List<Game>();
+
+        // Liste affichée (filtrée)
         public ObservableCollection<Game> Games { get; } = new ObservableCollection<Game>();
 
         public ICommand LoadCommand { get; }
         public ICommand SearchCommand { get; }
         public ICommand SortCommand { get; }
         public ICommand GoToDetailCommand { get; }
+        public ICommand AddAcquisCommand { get; }
         public ICommand AddToWishlistCommand { get; }
 
         //Filtres
@@ -32,17 +37,32 @@ namespace TPI_ArcaludoApp.ViewModels
                 _activeSort = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(NotesButtonColor));
+                OnPropertyChanged(nameof(RecentButtonColor));
                 OnPropertyChanged(nameof(AvenirButtonColor));
-                OnPropertyChanged(nameof(AZButtonColor));
-                OnPropertyChanged(nameof(ZAButtonColor));
+                OnPropertyChanged(nameof(YearButtonColor));
+                OnPropertyChanged(nameof(YearInputVisible));
             }
         }
 
-        public string NotesButtonColor => _activeSort == "notes" ? "#3A7AFE" : "#2a2a2a";
+        public string NotesButtonColor  => _activeSort == "notes"  ? "#3A7AFE" : "#2a2a2a";
+        public string RecentButtonColor => _activeSort == "recent" ? "#3A7AFE" : "#2a2a2a";
         public string AvenirButtonColor => _activeSort == "avenir" ? "#3A7AFE" : "#2a2a2a";
-        public string AZButtonColor => _activeSort == "az" ? "#3A7AFE" : "#2a2a2a";
-        public string ZAButtonColor => _activeSort == "za" ? "#3A7AFE" : "#2a2a2a";
+        public string YearButtonColor   => _activeSort == "year"   ? "#3A7AFE" : "#2a2a2a";
 
+        // Filtre par année — visible seulement quand Année est actif
+        public bool YearInputVisible => _activeSort == "year";
+
+        private string _yearText = "";
+        public string YearText
+        {
+            get => _yearText;
+            set
+            {
+                _yearText = value;
+                OnPropertyChanged();
+                ApplyYearFilter();
+            }
+        }
 
         //Recherche de texte
         private string _searchText = "";
@@ -61,23 +81,37 @@ namespace TPI_ArcaludoApp.ViewModels
             SearchCommand = new Command(async () => await SearchGamesAsync());
             SortCommand = new Command<string>(async (string sort) => await ApplySort(sort));
             GoToDetailCommand = new Command<Game>(async (Game game) => await GoToDetail(game));
+            AddAcquisCommand = new Command<Game>(async (Game game) => await AddDirectAcquis(game));
             AddToWishlistCommand = new Command<Game>(async (Game game) => await AddToWishlist(game));
         }
 
         public async Task LoadGamesAsync()
         {
-
             string token = await SecureStorage.GetAsync("auth_token");
-
-            Console.WriteLine("[Library] Token = " + (token ?? "NULL"));
-
             if (string.IsNullOrEmpty(token)) return;
 
-            List<Game> result = await _apiService.GetTrendingAsync(token, _activeSort);
-            Console.WriteLine("[Library] Nombre de jeux reçus : " + result.Count);
+            // "year" utilise le tri "recent" côté backend, puis filtre local par année
+            string backendSort = _activeSort == "year" ? "recent" : _activeSort;
 
+            List<Game> result = await _apiService.GetTrendingAsync(token, backendSort);
+
+            _allGames = result;
+            ApplyYearFilter();
+        }
+
+        // Filtre local par année depuis _allGames
+        private void ApplyYearFilter()
+        {
             Games.Clear();
-            foreach (Game game in result)
+
+            IEnumerable<Game> filtered = _allGames;
+
+            if (_activeSort == "year" && !string.IsNullOrWhiteSpace(_yearText) && _yearText.Length == 4)
+            {
+                filtered = _allGames.Where(g => g.ReleaseYear == _yearText);
+            }
+
+            foreach (Game game in filtered)
             {
                 Games.Add(game);
             }
@@ -96,6 +130,7 @@ namespace TPI_ArcaludoApp.ViewModels
 
             List<Game> result = await _apiService.SearchGamesAsync(token, _searchText, _activeSort);
 
+            _allGames = result;
             Games.Clear();
             foreach (Game game in result)
             {
@@ -106,6 +141,13 @@ namespace TPI_ArcaludoApp.ViewModels
         private async Task ApplySort(string sort)
         {
             ActiveSort = sort;
+
+            // Réinitialiser le filtre année si on change de tri
+            if (sort != "year")
+            {
+                _yearText = "";
+                OnPropertyChanged(nameof(YearText));
+            }
 
             if (!string.IsNullOrEmpty(_searchText) && _searchText.Length >= 3)
             {
@@ -122,6 +164,27 @@ namespace TPI_ArcaludoApp.ViewModels
             if (game == null) return;
             await Shell.Current.GoToAsync("GameDetailPage?gamId=" + game.Id);
         }
+        // Ajouter directement comme "acquis" sans passer par le détail
+        private async Task AddDirectAcquis(Game game)
+        {
+            if (game == null) return;
+
+            string token = await SecureStorage.GetAsync("auth_token");
+            if (string.IsNullOrEmpty(token)) return;
+
+            bool success = await _apiService.AddToCollectionAsync(token, game, "acquis");
+
+            if (success)
+            {
+                game.InCollection = true;
+                await Shell.Current.DisplayAlert("✓", game.Title + " ajouté à votre collection !", "OK");
+            }
+            else
+            {
+                await Shell.Current.DisplayAlert("Erreur", "Impossible d'ajouter ce jeu.", "OK");
+            }
+        }
+
         private async Task AddToWishlist(Game game)
         {
             if (game == null) return;
@@ -134,9 +197,6 @@ namespace TPI_ArcaludoApp.ViewModels
             if (success)
             {
                 game.InCollection = true;
-
-
-                await LoadGamesAsync();
                 await Shell.Current.DisplayAlert("✓", game.Title + " ajouté à la wishlist !", "OK");
             }
             else

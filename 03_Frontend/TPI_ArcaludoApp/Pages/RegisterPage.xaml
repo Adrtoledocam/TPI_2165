@@ -40,56 +40,72 @@
                    Margin="0,0,0,40" />
 
             <!-- User -->
-            <Border BackgroundColor="#2a2a2a"
+            <Border BackgroundColor="#2a2a2a" 
                     Stroke="Transparent"
-                    StrokeShape="RoundRectangle 100"
-                    Margin="0,0,0,12">
-                <HorizontalStackLayout Padding="16,0" Spacing="10" InputTransparent="True">
-                    <Label Text="👤" FontSize="18"
+                    StrokeShape="RoundRectangle 100" 
+                    Margin="0,0,0,12"
+                    MinimumHeightRequest="52">
+                <Grid ColumnDefinitions="Auto,*" Padding="16,0">
+                    <Label Grid.Column="0" Text="👤" FontSize="18" 
                            VerticalOptions="Center" />
-                    <Entry Placeholder="Nom d'utilisateur"
+                    <Entry Grid.Column="1"
+                           Placeholder="Nom d'utilisateur" 
                            PlaceholderColor="#888"
-                           TextColor="White"
+                           TextColor="White" 
                            BackgroundColor="Transparent"
                            Text="{Binding Username}"
-                           HorizontalOptions="FillAndExpand" />
-                </HorizontalStackLayout>
+                           VerticalOptions="Center"
+                           MinimumHeightRequest="52"
+                           Margin="10,0,0,0" />
+                </Grid>
             </Border>
 
             <!-- Email -->
-            <Border BackgroundColor="#2a2a2a"
+            <Border BackgroundColor="#2a2a2a" 
                     Stroke="Transparent"
-                    StrokeShape="RoundRectangle 100"
-                    Margin="0,0,0,12">
-                <HorizontalStackLayout Padding="16,0" Spacing="10" InputTransparent="True">
-                    <Label Text="@" TextColor="#aaa" FontSize="18"
+                    StrokeShape="RoundRectangle 100" 
+                    Margin="0,0,0,12"
+                    MinimumHeightRequest="52">
+                <Grid ColumnDefinitions="Auto,*" 
+                      Padding="16,0">
+                    <Label Grid.Column="0" 
+                           Text="@" 
+                           TextColor="#aaa"
+                           FontSize="18" 
                            VerticalOptions="Center" />
-                    <Entry Placeholder="Email"
-                           PlaceholderColor="#888"
-                           TextColor="White"
-                           BackgroundColor="Transparent"
-                           Keyboard="Email"
-                           Text="{Binding Email}"
-                           HorizontalOptions="FillAndExpand" />
-                </HorizontalStackLayout>
+                    <Entry Grid.Column="1"
+                           Placeholder="Email" PlaceholderColor="#888"
+                           TextColor="White" BackgroundColor="Transparent"
+                           Keyboard="Email" Text="{Binding Email}"
+                           VerticalOptions="Center"
+                           MinimumHeightRequest="52"
+                           Margin="10,0,0,0" />
+                </Grid>
             </Border>
 
             <!-- Champ MDP -->
-            <Border BackgroundColor="#2a2a2a"
+            <Border BackgroundColor="#2a2a2a" 
                     Stroke="Transparent"
-                    StrokeShape="RoundRectangle 100"
-                    Margin="0,0,0,32">
-                <HorizontalStackLayout Padding="16,0" Spacing="10">
-                    <Label Text="🔑" FontSize="18"
+                    StrokeShape="RoundRectangle 100" 
+                    Margin="0,0,0,32"
+                    MinimumHeightRequest="52">
+                <Grid ColumnDefinitions="Auto,*" 
+                      Padding="16,0">
+                    <Label Grid.Column="0" 
+                           Text="🔑" 
+                           FontSize="18"
                            VerticalOptions="Center" />
-                    <Entry Placeholder="Mot de passe"
+                    <Entry Grid.Column="1"
+                           Placeholder="Mot de passe" 
                            PlaceholderColor="#888"
-                           TextColor="White"
+                           TextColor="White" 
                            BackgroundColor="Transparent"
-                           IsPassword="True"
+                           IsPassword="True" 
                            Text="{Binding Password}"
-                           HorizontalOptions="FillAndExpand" />
-                </HorizontalStackLayout>
+                           VerticalOptions="Center"
+                           MinimumHeightRequest="52"
+                           Margin="10,0,0,0" />
+                </Grid>
             </Border>
 
             <!-- Créer un nouveau compte -->

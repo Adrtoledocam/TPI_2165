@@ -4,6 +4,7 @@
              xmlns:vm="clr-namespace:TPI_ArcaludoApp.ViewModels"
              xmlns:models="clr-namespace:TPI_ArcaludoApp.Models"
              x:Class="TPI_ArcaludoApp.Pages.LibraryPage"
+             x:Name="RootPage"
              BackgroundColor="#000000"
              Title="Bibliothèque">
 
@@ -11,61 +12,68 @@
         <vm:LibraryViewModel />
     </ContentPage.BindingContext>
 
-    <Grid RowDefinitions="Auto,Auto,*">
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
 
         <!-- Barre de recherche -->
-        <Border Grid.Row="0"
-                BackgroundColor="#1a1a1a"
-                Stroke="Transparent"
-                StrokeShape="RoundRectangle 100"
-                Margin="16,12,16,8">
-            <HorizontalStackLayout Padding="14,0" Spacing="8">
-                <Label Text="🔍" FontSize="16" VerticalOptions="Center" />
-                <Entry Placeholder="Rechercher un jeu..."
-                       PlaceholderColor="#666"
-                       TextColor="White"
-                       BackgroundColor="Transparent"
-                       Text="{Binding SearchText}"
-                       ReturnCommand="{Binding SearchCommand}"
-                       HorizontalOptions="FillAndExpand" />
-            </HorizontalStackLayout>
+        <Border Grid.Row="0" BackgroundColor="#1a1a1a" Stroke="Transparent"
+                StrokeShape="RoundRectangle 100" Margin="16,12,16,8" MinimumHeightRequest="48">
+            <Grid ColumnDefinitions="Auto,*" Padding="14,0">
+                <Label Grid.Column="0" Text="🔍" FontSize="16" VerticalOptions="Center" />
+                <Entry Grid.Column="1"
+                       Placeholder="Rechercher un jeu..." PlaceholderColor="#666"
+                       TextColor="White" BackgroundColor="Transparent"
+                       Text="{Binding SearchText}" ReturnCommand="{Binding SearchCommand}"
+                       VerticalOptions="Center" MinimumHeightRequest="48"
+                       Margin="8,0,0,0" />
+            </Grid>
         </Border>
 
-        <!-- Filtres et Tri -->
-        <ScrollView Grid.Row="1"
-                    Orientation="Horizontal"
-                    HorizontalScrollBarVisibility="Never"
-                    Margin="16,0,16,8">
+        <!-- Filtres : +Notés | Récents | À venir | Année -->
+        <ScrollView Grid.Row="1" Orientation="Horizontal"
+                    HorizontalScrollBarVisibility="Never" Margin="16,0,16,8">
             <HorizontalStackLayout Spacing="8">
-                <Button Text="+Notés"
-                        Command="{Binding SortCommand}"
+                <Button Text="+Notés" Command="{Binding SortCommand}"
                         CommandParameter="notes"
                         BackgroundColor="{Binding NotesButtonColor}"
                         TextColor="White" FontSize="13"
                         CornerRadius="100" Padding="16,8" HeightRequest="36" />
-                <Button Text="À venir"
-                        Command="{Binding SortCommand}"
+                <Button Text="Récents" Command="{Binding SortCommand}"
+                        CommandParameter="recent"
+                        BackgroundColor="{Binding RecentButtonColor}"
+                        TextColor="White" FontSize="13"
+                        CornerRadius="100" Padding="16,8" HeightRequest="36" />
+                <Button Text="À venir" Command="{Binding SortCommand}"
                         CommandParameter="avenir"
                         BackgroundColor="{Binding AvenirButtonColor}"
                         TextColor="White" FontSize="13"
                         CornerRadius="100" Padding="16,8" HeightRequest="36" />
-                <Button Text="A - Z"
-                        Command="{Binding SortCommand}"
-                        CommandParameter="az"
-                        BackgroundColor="{Binding AZButtonColor}"
-                        TextColor="White" FontSize="13"
-                        CornerRadius="100" Padding="16,8" HeightRequest="36" />
-                <Button Text="Z - A"
-                        Command="{Binding SortCommand}"
-                        CommandParameter="za"
-                        BackgroundColor="{Binding ZAButtonColor}"
+                <Button Text="Année" Command="{Binding SortCommand}"
+                        CommandParameter="year"
+                        BackgroundColor="{Binding YearButtonColor}"
                         TextColor="White" FontSize="13"
                         CornerRadius="100" Padding="16,8" HeightRequest="36" />
             </HorizontalStackLayout>
         </ScrollView>
 
+        <!-- INPUT ANNÉE (visible seulement quand Année est actif) -->
+        <Border Grid.Row="2"
+                IsVisible="{Binding YearInputVisible}"
+                BackgroundColor="#1a1a1a" Stroke="#3A7AFE" StrokeThickness="1"
+                StrokeShape="RoundRectangle 100" Margin="16,0,16,8" MinimumHeightRequest="44">
+            <Grid ColumnDefinitions="Auto,*,Auto" Padding="14,0">
+                <Label Grid.Column="0" Text="📅" FontSize="16" VerticalOptions="Center" />
+                <Entry Grid.Column="1"
+                       Placeholder="Entrez une année (ex: 2023)" PlaceholderColor="#666"
+                       TextColor="White" BackgroundColor="Transparent"
+                       Keyboard="Numeric" MaxLength="4"
+                       Text="{Binding YearText}"
+                       VerticalOptions="Center" MinimumHeightRequest="44" Margin="8,0,0,0" />
+                <Label Grid.Column="2" Text="1900–2031" TextColor="#555" FontSize="11" VerticalOptions="Center" />
+            </Grid>
+        </Border>
+
         <!-- Liste -->
-        <CollectionView Grid.Row="2" ItemsSource="{Binding Games}">
+        <CollectionView Grid.Row="3" ItemsSource="{Binding Games}">
 
             <CollectionView.EmptyView>
                 <VerticalStackLayout VerticalOptions="Center"
@@ -80,39 +88,54 @@
 
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Game">
-                    <Border BackgroundColor="#0a0a0a"
-                            Stroke="#2a2a2a"
-                            StrokeThickness="1"
-                            StrokeShape="RoundRectangle 14"
+                    <Border BackgroundColor="#0a0a0a" Stroke="#2a2a2a"
+                            StrokeThickness="1" StrokeShape="RoundRectangle 14"
                             Margin="16,0,16,10">
                         <Grid ColumnDefinitions="120,*" Padding="0">
 
-                            <!-- Img -->
-                            <Image Grid.Column="0"
-                                   Source="{Binding CoverUrl}"
-                                   HeightRequest="130"
-                                   WidthRequest="120"
-                                   Aspect="AspectFill"
-                                   BackgroundColor="#1a1a1a" />
+                            <!-- Cover — tap pour aller au détail -->
+                            <Grid Grid.Column="0">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding BindingContext.GoToDetailCommand, Source={x:Reference RootPage}}"
+                                        CommandParameter="{Binding .}" />
+                                </Grid.GestureRecognizers>
+                                <Image Source="{Binding CoverUrl}"
+                                       HeightRequest="130" WidthRequest="120"
+                                       Aspect="AspectFill"
+                                       BackgroundColor="#1a1a1a" />
+                                <!-- Logo fallback si CoverUrl est vide -->
+                                <Image Source="LogoNoTitleNoBackground.png"
+                                       IsVisible="{Binding HasNoCover}"
+                                       HeightRequest="60" WidthRequest="60"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"
+                                       Opacity="0.5" />
+                            </Grid>
 
                             <!-- INFOS -->
                             <VerticalStackLayout Grid.Column="1"
                                                  Padding="12,10" Spacing="4">
 
-                                <Label Text="{Binding Title}"
-                                       TextColor="White" FontSize="15"
-                                       FontAttributes="Bold"
-                                       LineBreakMode="TailTruncation" />
-
-                                <Label Text="{Binding MetacriticDisplay}"
-                                       TextColor="#F5C42B" FontSize="13"
-                                       FontAttributes="Bold" />
-
-                                <Label Text="{Binding Genre}"
-                                       TextColor="#bbb" FontSize="12" />
-
-                                <Label Text="{Binding ReleaseYear}"
-                                       TextColor="#777" FontSize="11" />
+                                <!-- Zone titre/meta/genre — tap pour détail -->
+                                <VerticalStackLayout Spacing="4">
+                                    <VerticalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding BindingContext.GoToDetailCommand, Source={x:Reference RootPage}}"
+                                            CommandParameter="{Binding .}" />
+                                    </VerticalStackLayout.GestureRecognizers>
+                                    <Label Text="{Binding Title}"
+                                           TextColor="White" FontSize="15"
+                                           FontAttributes="Bold"
+                                           LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding MetacriticDisplay}"
+                                           TextColor="#F5C42B" FontSize="13"
+                                           FontAttributes="Bold" />
+                                    <Label Text="{Binding Genre}"
+                                           TextColor="#bbb" FontSize="12" />
+                                    <Label Text="{Binding ReleaseYear}"
+                                           TextColor="#777" FontSize="11" />
+                                </VerticalStackLayout>
 
                                 <!-- Déjà dans la collection -->
                                 <Border IsVisible="{Binding InCollection}"
@@ -130,16 +153,18 @@
                                 <!-- Pas encore dans la collection -->
                                 <HorizontalStackLayout IsVisible="{Binding NotInCollection}"
                                                        Spacing="8" Margin="0,6,0,0">
-                                    <Button Text="+ Ajouter"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LibraryViewModel}}, Path=GoToDetailCommand}"
+                                    <!-- Ajouter directement en Acquis -->
+                                    <Button Text="+ Acquis"
+                                            Command="{Binding BindingContext.AddAcquisCommand, Source={x:Reference RootPage}}"
                                             CommandParameter="{Binding .}"
                                             BackgroundColor="#3A7AFE"
                                             TextColor="White" FontSize="12"
                                             CornerRadius="100"
                                             Padding="12,0" HeightRequest="34" />
 
+                                    <!-- Ajouter à la wishlist -->
                                     <Button Text="♥"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LibraryViewModel}}, Path=AddToWishlistCommand}"
+                                            Command="{Binding BindingContext.AddToWishlistCommand, Source={x:Reference RootPage}}"
                                             CommandParameter="{Binding .}"
                                             BackgroundColor="#2a2a2a"
                                             TextColor="#FF6B9D" FontSize="16"

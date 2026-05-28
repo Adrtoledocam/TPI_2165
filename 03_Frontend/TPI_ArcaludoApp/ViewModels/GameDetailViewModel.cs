@@ -113,25 +113,11 @@ namespace TPI_ArcaludoApp.ViewModels
         {
             _apiService = new ApiService();
 
-            SelectStatusCommand    = new Command<string>((string s) => SelectedStatus = s);
-            TogglePlatformCommand  = new Command<PlatformItem>((PlatformItem p) => p.IsSelected = !p.IsSelected);
-            SaveCommand            = new Command(async () => await ExecuteSave());
+            SelectStatusCommand         = new Command<string>((string s) => SelectedStatus = s);
+            TogglePlatformCommand       = new Command<PlatformItem>((PlatformItem p) => p.IsSelected = !p.IsSelected);
+            SaveCommand                 = new Command(async () => await ExecuteSave());
             RemoveFromCollectionCommand = new Command(async () => await ExecuteRemove());
-            GoBackCommand          = new Command(async () => await Shell.Current.GoToAsync(".."));
-
-            InitPlatforms();
-        }
-
-        private void InitPlatforms()
-        {
-            List<string> platformNames = new List<string>
-            {
-                "PS5", "PC", "PS4", "Switch",
-                "Xbox S", "Xbox X", "Xbox One"
-            };
-
-            foreach (string name in platformNames)
-                Platforms.Add(new PlatformItem { Name = name, IsSelected = false });
+            GoBackCommand               = new Command(async () => await Shell.Current.GoToAsync(".."));
         }
 
         public async Task LoadGameAsync()
@@ -146,25 +132,46 @@ namespace TPI_ArcaludoApp.ViewModels
             {
                 CurrentGame = game;
 
+                // Générer les plateformes depuis les données RAWG (gamPlatforms)
+                Platforms.Clear();
+                if (!string.IsNullOrEmpty(game.Platforms))
+                {
+                    string[] rawgPlatforms = game.Platforms.Split('|');
+                    foreach (string platformName in rawgPlatforms)
+                    {
+                        string name = platformName.Trim();
+                        if (!string.IsNullOrEmpty(name))
+                        {
+                            Platforms.Add(new PlatformItem { Name = name, IsSelected = false });
+                        }
+                    }
+                }
+
+                // Pré-remplir si jeu déjà dans la collection
                 if (game.CollectionEntry != null)
                 {
                     CollectionEntry entry = game.CollectionEntry;
-                    _colId          = entry.ColId;
-                    SelectedStatus  = entry.ColStatus ?? "";
-                    Rating          = entry.ColRating ?? 0;
-                    Comment         = entry.ColComment ?? "";
-                    Playtime        = entry.ColPlaytime ?? 0;
+                    _colId         = entry.ColId;
+                    SelectedStatus = entry.ColStatus ?? "";
+                    Rating         = entry.ColRating ?? 0;
+                    Comment        = entry.ColComment ?? "";
+                    Playtime       = entry.ColPlaytime ?? 0;
 
+                    // Cocher les plateformes déjà sélectionnées
                     if (!string.IsNullOrEmpty(entry.ColOwnPlatforms))
                     {
-                        string[] saved = entry.ColOwnPlatforms.Split(',');
+                        string[] savedPlatforms = entry.ColOwnPlatforms.Split(',');
+
                         foreach (PlatformItem platform in Platforms)
                         {
                             platform.IsSelected = false;
-                            foreach (string savedName in saved)
+
+                            foreach (string saved in savedPlatforms)
                             {
-                                if (platform.Name == savedName.Trim())
+                                if (platform.Name == saved.Trim())
+                                {
                                     platform.IsSelected = true;
+                                }
                             }
                         }
                     }

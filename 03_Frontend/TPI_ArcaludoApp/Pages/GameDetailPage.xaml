@@ -14,66 +14,57 @@
     <ScrollView>
         <VerticalStackLayout Spacing="0">
 
-            <!-- HEADER CUSTOM -->
+            <!-- HEADER — padding top réduit (0 au lieu de 44) -->
             <Grid BackgroundColor="#4A4A6A"
-                  Padding="16,44,16,12"
-                  ColumnDefinitions="Auto,*">
+                  Padding="12,8,16,12"
+                  ColumnDefinitions="Auto,*,Auto">
                 <Button Grid.Column="0"
-                        Text="←"
-                        Command="{Binding GoBackCommand}"
-                        BackgroundColor="Transparent"
-                        TextColor="White"
-                        FontSize="22"
-                        WidthRequest="44"
-                        HeightRequest="44"
-                        Padding="0" />
+                        Text="←" Command="{Binding GoBackCommand}"
+                        BackgroundColor="Transparent" TextColor="White"
+                        FontSize="22" WidthRequest="44" HeightRequest="44" Padding="0" />
                 <Label Grid.Column="1"
-                       Text="Détails du jeu"
-                       TextColor="White"
-                       FontSize="17"
-                       FontAttributes="Bold"
-                       VerticalOptions="Center"
-                       HorizontalOptions="Center" />
+                       Text="{Binding CurrentGame.Title}"
+                       TextColor="White" FontSize="16" FontAttributes="Bold"
+                       VerticalOptions="Center" HorizontalOptions="Center"
+                       LineBreakMode="TailTruncation" />
+                <!-- Metacritic dans le header -->
+                <Label Grid.Column="2"
+                       Text="{Binding CurrentGame.MetacriticDisplay}"
+                       TextColor="#F5C42B" FontSize="14" FontAttributes="Bold"
+                       VerticalOptions="Center" />
             </Grid>
 
-            <!-- COVER PLEINE LARGEUR -->
+            <!-- COVER -->
             <Image Source="{Binding CurrentGame.CoverImageSource}"
-                   HeightRequest="220"
-                   Aspect="AspectFill" />
+                   HeightRequest="220" Aspect="AspectFill"
+                   BackgroundColor="#1a1a1a" />
 
             <VerticalStackLayout Padding="16" Spacing="0">
 
-                <!-- TITRE -->
-                <Label Text="{Binding CurrentGame.Title}"
-                       TextColor="White"
-                       FontSize="26"
-                       FontAttributes="Bold"
-                       Margin="0,12,0,6" />
-
-                <!-- PUBLISHER / DEVELOPER / ANNÉE -->
-                <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,4">
+                <!-- PUBLISHER / DEVELOPER (sans l'année) -->
+                <Grid ColumnDefinitions="*,*" Margin="0,12,0,8">
                     <HorizontalStackLayout Grid.Column="0" Spacing="4">
-                        <Label Text="⊞" TextColor="#aaa" FontSize="12" VerticalOptions="Center" />
+                        <Label Text="🏢" TextColor="#aaa" FontSize="12" VerticalOptions="Center" />
                         <Label Text="{Binding CurrentGame.Publisher}"
-                               TextColor="#aaa" FontSize="12" />
+                               TextColor="#aaa" FontSize="12" LineBreakMode="TailTruncation" />
                     </HorizontalStackLayout>
-                    <HorizontalStackLayout Grid.Column="1" Spacing="4" Margin="8,0">
+                    <HorizontalStackLayout Grid.Column="1" Spacing="4">
                         <Label Text="👤" TextColor="#aaa" FontSize="12" VerticalOptions="Center" />
                         <Label Text="{Binding CurrentGame.Developer}"
-                               TextColor="#aaa" FontSize="12" />
-                    </HorizontalStackLayout>
-                    <HorizontalStackLayout Grid.Column="2" Spacing="4">
-                        <Label Text="📅" TextColor="#aaa" FontSize="12" VerticalOptions="Center" />
-                        <Label Text="{Binding CurrentGame.ReleaseYear}"
-                               TextColor="#aaa" FontSize="12" VerticalOptions="Center" />
+                               TextColor="#aaa" FontSize="12" LineBreakMode="TailTruncation" />
                     </HorizontalStackLayout>
                 </Grid>
 
-                <!-- GENRES -->
-                <HorizontalStackLayout Spacing="4" Margin="0,0,0,16">
-                    <Label Text="🧩" TextColor="#aaa" FontSize="12" VerticalOptions="Center" />
-                    <Label Text="{Binding CurrentGame.Genre}"
-                           TextColor="#aaa" FontSize="12" VerticalOptions="Center" />
+                <!-- GENRE + ANNÉE sur la même ligne -->
+                <HorizontalStackLayout Spacing="16" Margin="0,0,0,16">
+                    <HorizontalStackLayout Spacing="4">
+                        <Label Text="🧩" TextColor="#aaa" FontSize="12" VerticalOptions="Center" />
+                        <Label Text="{Binding CurrentGame.Genre}" TextColor="#aaa" FontSize="12" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="4">
+                        <Label Text="📅" TextColor="#aaa" FontSize="12" VerticalOptions="Center" />
+                        <Label Text="{Binding CurrentGame.ReleaseYear}" TextColor="#aaa" FontSize="12" />
+                    </HorizontalStackLayout>
                 </HorizontalStackLayout>
 
                 <!-- ── STATUT ── -->

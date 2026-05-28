@@ -16,8 +16,7 @@ namespace TPI_ArcaludoApp.Services
     public class ApiService
     {
         private readonly HttpClient _httpClient;
-        //private const string _baseUrl = "http://10.0.2.2:8080/api/"; Emulateur
-        private const string _baseUrl = "http://localhost:8080/api/";
+        private const string _baseUrl = "http://localhost:8080/api/"; // émulateur Android
 
         public class LoginResponse
         {
@@ -112,20 +111,38 @@ namespace TPI_ArcaludoApp.Services
         //Jeux API RAWG
         public async Task<List<Game>> GetTrendingAsync(string token, string sort = "notes")
         {
-            SetAuthHeader(token);
             try
             {
-                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}games/trending?sort={sort}");
+                HttpRequestMessage request = new HttpRequestMessage(
+                    HttpMethod.Get, $"{_baseUrl}games/trending?sort={sort}");
+                request.Headers.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+                HttpResponseMessage response = await _httpClient.SendAsync(request);
                 if (!response.IsSuccessStatusCode) return new List<Game>();
                 string json = await response.Content.ReadAsStringAsync();
                 List<Game> games = JsonConvert.DeserializeObject<List<Game>>(json);
-                if (games == null)
-                {
-                    return new List<Game>();
-                }
-                return games;
+                return games ?? new List<Game>();
             }
             catch (Exception ex) { Console.WriteLine($"[GetTrending] {ex.Message}"); return new List<Game>(); }
+        }
+
+        public async Task<bool> GetCommunityOptInAsync(string token)
+        {
+            try
+            {
+                HttpRequestMessage request = new HttpRequestMessage(
+                    HttpMethod.Get, $"{_baseUrl}preferences");
+                request.Headers.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+                HttpResponseMessage response = await _httpClient.SendAsync(request);
+                if (!response.IsSuccessStatusCode) return false;
+                string json = await response.Content.ReadAsStringAsync();
+                JObject obj = JObject.Parse(json);
+                return obj["communityOptIn"]?.Value<bool>() ?? false;
+            }
+            catch (Exception ex) { Console.WriteLine($"[GetCommunityOptIn] {ex.Message}"); return false; }
         }
 
         public async Task<List<Game>> SearchGamesAsync(string token, string query, string sort = "notes")

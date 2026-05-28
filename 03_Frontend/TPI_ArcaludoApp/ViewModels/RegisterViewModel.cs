@@ -36,7 +36,7 @@ namespace TPI_ArcaludoApp.ViewModels
         {
             _apiService = new ApiService();
             RegisterCommand = new Command(async () => await ExecuteRegister());
-            GoToLoginCommand = new Command(async () => await Shell.Current.GoToAsync("LoginPage"));
+            GoToLoginCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
         }
         private async Task ExecuteRegister()
         {

@@ -25,9 +25,19 @@ namespace TPI_ArcaludoApp.ViewModels
                 _isOptIn = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsNotOptIn));
+                OnPropertyChanged(nameof(CommunityTitle));
             }
         }
         public bool IsNotOptIn => !_isOptIn;
+
+        public string CommunityTitle
+        {
+            get
+            {
+                if (!_isOptIn) return "Communauté";
+                return "Communauté (" + Members.Count + ")";
+            }
+        }
 
         public ICommand LoadCommand { get; }
         public ICommand GoToProfileCommand { get; }
@@ -36,7 +46,40 @@ namespace TPI_ArcaludoApp.ViewModels
         {
             _apiService = new ApiService();
             LoadCommand = new Command(async () => await LoadCommunityAsync());
-            GoToProfileCommand = new Command(async () => await Shell.Current.GoToAsync("//Main/ProfilePage"));
+            // Navigation directe vers l'onglet Profil 
+            GoToProfileCommand = new Command(async () =>
+            {
+                Shell shell = Shell.Current;
+                if (shell != null && shell.Items.Count > 0)
+                {
+                    Microsoft.Maui.ApplicationModel.MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        try
+                        {
+                            // Naviguer vers le TabBar principal puis sélectionner le dernier onglet (Profil)
+                            ShellItem mainItem = shell.Items[0];
+
+                            // Cas 1 : item est directement un TabBar
+                            if (mainItem is TabBar tabBar && tabBar.Items.Count > 0)
+                            {
+                                tabBar.CurrentItem = tabBar.Items[tabBar.Items.Count - 1];
+                                return;
+                            }
+
+                            // Cas 2 : sélectionner le dernier item du Shell directement
+                            if (shell.Items.Count >= 5)
+                            {
+                                shell.CurrentItem = shell.Items[shell.Items.Count - 1];
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("[GoToProfile-inner] " + ex.Message);
+                        }
+                    });
+                }
+                await Task.CompletedTask;
+            });
         }
 
         public async Task LoadCommunityAsync()
@@ -60,6 +103,8 @@ namespace TPI_ArcaludoApp.ViewModels
             {
                 Members.Add(member);
             }
+
+            OnPropertyChanged(nameof(CommunityTitle));
         }
     }
 }

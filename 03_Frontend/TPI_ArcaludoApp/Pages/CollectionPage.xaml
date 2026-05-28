@@ -15,21 +15,17 @@
     <Grid RowDefinitions="Auto,Auto,*">
 
         <!-- Recherche -->
-        <Border Grid.Row="0"
-                BackgroundColor="#1a1a1a"
-                Stroke="Transparent"
-                StrokeShape="RoundRectangle 100"
-                Margin="16,12,16,8">
-            <HorizontalStackLayout Padding="14,0" Spacing="8">
-                <Label Text="🔍" FontSize="16" VerticalOptions="Center" />
-                <Entry Placeholder="Rechercher un jeu..."
-                       PlaceholderColor="#666"
-                       TextColor="White"
-                       BackgroundColor="Transparent"
-                       Text="{Binding SearchText}"
-                       ReturnCommand="{Binding SearchCommand}"
-                       HorizontalOptions="FillAndExpand" />
-            </HorizontalStackLayout>
+        <Border Grid.Row="0" BackgroundColor="#1a1a1a" Stroke="Transparent"
+                StrokeShape="RoundRectangle 100" Margin="16,12,16,8" MinimumHeightRequest="48">
+            <Grid ColumnDefinitions="Auto,*" Padding="14,0">
+                <Label Grid.Column="0" Text="🔍" FontSize="16" VerticalOptions="Center" />
+                <Entry Grid.Column="1"
+                       Placeholder="Rechercher un jeu..." PlaceholderColor="#666"
+                       TextColor="White" BackgroundColor="Transparent"
+                       Text="{Binding SearchText}" ReturnCommand="{Binding SearchCommand}"
+                       VerticalOptions="Center" MinimumHeightRequest="48"
+                       Margin="8,0,0,0" />
+            </Grid>
         </Border>
 
         <!-- Filtres + tri -->
@@ -141,10 +137,11 @@
                                                TextColor="#bbb" FontSize="12" />
                                     </HorizontalStackLayout>
 
-                                    <!-- Plateformes -->
-                                    <HorizontalStackLayout Spacing="6">
+                                    <!-- Plateformes POSSÉDÉES par l'utilisateur (colOwnPlatforms) -->
+                                    <HorizontalStackLayout Spacing="6"
+                                                           IsVisible="{Binding HasOwnPlatforms}">
                                         <Label Text="🖥" FontSize="11" VerticalOptions="Center" />
-                                        <Label Text="{Binding GamPlatforms}"
+                                        <Label Text="{Binding ColOwnPlatforms}"
                                                TextColor="#bbb" FontSize="12"
                                                LineBreakMode="TailTruncation" />
                                     </HorizontalStackLayout>
@@ -162,7 +159,8 @@
                                                 StrokeShape="RoundRectangle 100"
                                                 Padding="10,4"
                                                 BackgroundColor="Transparent"
-                                                Stroke="{Binding StatusColor}">
+                                                Stroke="{Binding StatusColor}"
+                                                >
                                             <Label Text="{Binding StatusDisplay}"
                                                    TextColor="{Binding StatusColor}"
                                                    FontSize="11"

@@ -5,7 +5,7 @@
              xmlns:models="clr-namespace:TPI_ArcaludoApp.Models"
              x:Class="TPI_ArcaludoApp.Pages.CommunityPage"
              BackgroundColor="#000000"
-             Title="Communauté">
+             Title="{Binding CommunityTitle}">
 
     <ContentPage.BindingContext>
         <vm:CommunityViewModel />
@@ -30,13 +30,13 @@
                    FontAttributes="Bold"
                    HorizontalOptions="Center" />
 
-            <Label Text="Activez votre participation à la Communauté dans vos Paramètres pour voir les statistiques des autres membres."
+            <Label Text="Activez votre participation à la Communauté dans votre Profil pour voir les statistiques des autres membres."
                    TextColor="#aaa"
                    FontSize="14"
                    HorizontalOptions="Center"
                    HorizontalTextAlignment="Center" />
 
-            <Button Text="Aller aux Paramètres →"
+            <Button Text="Aller au Profil →"
                     Command="{Binding GoToProfileCommand}"
                     BackgroundColor="#3A7AFE"
                     TextColor="White"
