@@ -91,6 +91,11 @@ namespace TPI_ArcaludoApp.Models
             }
         }
 
+        public Brush StatusColorBorder
+        {
+            get { return new SolidColorBrush(Color.FromArgb(StatusColor)); }
+        }
+
         // True si l'utilisateur a des plateformes renseignées
         public bool HasOwnPlatforms
         {

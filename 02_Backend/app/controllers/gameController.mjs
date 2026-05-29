@@ -63,11 +63,12 @@ const sortGames = (games, sort) => {
 export const getTrending = async (req, res) => {
     const useId = req.user.id;
     const sort   = req.query.sort ?? "notes";
+    const page  = parseInt(req.query.page) || 1; 
 
     const { ordering, datesFilter } = getFilterOrdering(sort);
 
     try {
-        const url = `${RAWG_BASE_URL}/games?key=${RAWG_API_KEY}&ordering=${ordering}&page_size=20${datesFilter}`;
+        const url = `${RAWG_BASE_URL}/games?key=${RAWG_API_KEY}&ordering=${ordering}&page_size=20${datesFilter}&page=${page}`;
         const response = await fetch(url);
 
         if (!response.ok)

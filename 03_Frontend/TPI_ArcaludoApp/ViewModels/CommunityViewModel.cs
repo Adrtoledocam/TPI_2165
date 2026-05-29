@@ -49,36 +49,8 @@ namespace TPI_ArcaludoApp.ViewModels
             // Navigation directe vers l'onglet Profil 
             GoToProfileCommand = new Command(async () =>
             {
-                Shell shell = Shell.Current;
-                if (shell != null && shell.Items.Count > 0)
-                {
-                    Microsoft.Maui.ApplicationModel.MainThread.BeginInvokeOnMainThread(() =>
-                    {
-                        try
-                        {
-                            // Naviguer vers le TabBar principal puis sélectionner le dernier onglet (Profil)
-                            ShellItem mainItem = shell.Items[0];
-
-                            // Cas 1 : item est directement un TabBar
-                            if (mainItem is TabBar tabBar && tabBar.Items.Count > 0)
-                            {
-                                tabBar.CurrentItem = tabBar.Items[tabBar.Items.Count - 1];
-                                return;
-                            }
-
-                            // Cas 2 : sélectionner le dernier item du Shell directement
-                            if (shell.Items.Count >= 5)
-                            {
-                                shell.CurrentItem = shell.Items[shell.Items.Count - 1];
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine("[GoToProfile-inner] " + ex.Message);
-                        }
-                    });
-                }
-                await Task.CompletedTask;
+                try { await Shell.Current.GoToAsync("//ProfilePage"); }
+                catch { /*Shell.Current.CurrentItem = Shell.Current.Items[Shell.Current.Items.Count - 1]; */}
             });
         }
 

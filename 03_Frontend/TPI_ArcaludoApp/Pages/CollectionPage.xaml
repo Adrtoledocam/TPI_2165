@@ -91,7 +91,7 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:CollectionGame">
                     <Border BackgroundColor="#0d0d0d"
-                            Stroke="{Binding StatusColor}"
+                            Stroke="{Binding StatusColorBorder}"
                             StrokeThickness="1.5"
                             StrokeShape="RoundRectangle 14"
                             Margin="16,0,16,10">
@@ -104,7 +104,7 @@
                             <!-- Contenu de la carte -->
                             <Grid ColumnDefinitions="120,*">
 
-                                <!-- Image de couverture -->
+                                <!-- Image -->
                                 <Image Grid.Column="0"
                                        Source="{Binding CoverImageSource}"
                                        HeightRequest="130"
@@ -137,7 +137,7 @@
                                                TextColor="#bbb" FontSize="12" />
                                     </HorizontalStackLayout>
 
-                                    <!-- Plateformes POSSÉDÉES par l'utilisateur (colOwnPlatforms) -->
+                                    <!-- Plateformes Possédées -->
                                     <HorizontalStackLayout Spacing="6"
                                                            IsVisible="{Binding HasOwnPlatforms}">
                                         <Label Text="🖥" FontSize="11" VerticalOptions="Center" />
@@ -146,7 +146,7 @@
                                                LineBreakMode="TailTruncation" />
                                     </HorizontalStackLayout>
 
-                                    <!-- Année + Badge statut -->
+                                    <!-- Année + status -->
                                     <Grid ColumnDefinitions="*,Auto" Margin="0,2,0,0">
                                         <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
                                             <Label Text="📅" FontSize="11" VerticalOptions="Center" />
@@ -159,7 +159,7 @@
                                                 StrokeShape="RoundRectangle 100"
                                                 Padding="10,4"
                                                 BackgroundColor="Transparent"
-                                                Stroke="{Binding StatusColor}"
+                                                Stroke="{Binding StatusColorBorder}"
                                                 >
                                             <Label Text="{Binding StatusDisplay}"
                                                    TextColor="{Binding StatusColor}"

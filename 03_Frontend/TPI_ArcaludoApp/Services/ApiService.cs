@@ -109,12 +109,12 @@ namespace TPI_ArcaludoApp.Services
         }
 
         //Jeux API RAWG
-        public async Task<List<Game>> GetTrendingAsync(string token, string sort = "notes")
+        public async Task<List<Game>> GetTrendingAsync(string token, string sort = "notes", int page = 1)
         {
             try
             {
                 HttpRequestMessage request = new HttpRequestMessage(
-                    HttpMethod.Get, $"{_baseUrl}games/trending?sort={sort}");
+                    HttpMethod.Get, $"{_baseUrl}games/trending?sort={sort}&page={page}");
                 request.Headers.Authorization =
                     new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
@@ -211,7 +211,7 @@ namespace TPI_ArcaludoApp.Services
             {
                 game = new
                 {
-                    game.Id,
+                    id = game.Id,
                     title = game.Title,
                     coverUrl = game.CoverUrl,
                     platforms = game.Platforms,

@@ -20,12 +20,32 @@ namespace TPI_ArcaludoApp.ViewModels
         // Liste affichée (filtrée)
         public ObservableCollection<Game> Games { get; } = new ObservableCollection<Game>();
 
+        //Pagines scroll
+        private int _currentPage = 1;
+        private bool _hasMore = true;
+
+        private bool _isLoadingMore = false;
+        public bool IsLoadingMore
+        {
+            get => _isLoadingMore;
+            set { _isLoadingMore = value; OnPropertyChanged(); }
+        }
+
+        public bool HasMore
+        {
+            get => _hasMore;
+            set { _hasMore = value; OnPropertyChanged(); }
+        }
+
+        //Commandes
         public ICommand LoadCommand { get; }
         public ICommand SearchCommand { get; }
         public ICommand SortCommand { get; }
         public ICommand GoToDetailCommand { get; }
         public ICommand AddAcquisCommand { get; }
         public ICommand AddToWishlistCommand { get; }
+        public ICommand LoadMoreCommand { get; }
+
 
         //Filtres
         private string _activeSort = "notes";
@@ -39,30 +59,14 @@ namespace TPI_ArcaludoApp.ViewModels
                 OnPropertyChanged(nameof(NotesButtonColor));
                 OnPropertyChanged(nameof(RecentButtonColor));
                 OnPropertyChanged(nameof(AvenirButtonColor));
-                OnPropertyChanged(nameof(YearButtonColor));
-                OnPropertyChanged(nameof(YearInputVisible));
+                OnPropertyChanged(nameof(AZButtonColor));
             }
         }
 
         public string NotesButtonColor  => _activeSort == "notes"  ? "#3A7AFE" : "#2a2a2a";
         public string RecentButtonColor => _activeSort == "recent" ? "#3A7AFE" : "#2a2a2a";
         public string AvenirButtonColor => _activeSort == "avenir" ? "#3A7AFE" : "#2a2a2a";
-        public string YearButtonColor   => _activeSort == "year"   ? "#3A7AFE" : "#2a2a2a";
-
-        // Filtre par année — visible seulement quand Année est actif
-        public bool YearInputVisible => _activeSort == "year";
-
-        private string _yearText = "";
-        public string YearText
-        {
-            get => _yearText;
-            set
-            {
-                _yearText = value;
-                OnPropertyChanged();
-                ApplyYearFilter();
-            }
-        }
+        public string AZButtonColor     => _activeSort == "az"     ? "#3A7AFE" : "#2a2a2a";
 
         //Recherche de texte
         private string _searchText = "";
@@ -83,38 +87,52 @@ namespace TPI_ArcaludoApp.ViewModels
             GoToDetailCommand = new Command<Game>(async (Game game) => await GoToDetail(game));
             AddAcquisCommand = new Command<Game>(async (Game game) => await AddDirectAcquis(game));
             AddToWishlistCommand = new Command<Game>(async (Game game) => await AddToWishlist(game));
+            LoadMoreCommand = new Command(async () => await LoadMoreAsync(), () => HasMore && !IsLoadingMore);
         }
 
         public async Task LoadGamesAsync()
         {
+            _currentPage = 1;
+            HasMore = true;
+
             string token = await SecureStorage.GetAsync("auth_token");
             if (string.IsNullOrEmpty(token)) return;
 
-            // "year" utilise le tri "recent" côté backend, puis filtre local par année
-            string backendSort = _activeSort == "year" ? "recent" : _activeSort;
-
-            List<Game> result = await _apiService.GetTrendingAsync(token, backendSort);
+            List<Game> result = await _apiService.GetTrendingAsync(token, _activeSort, page: 1);
 
             _allGames = result;
-            ApplyYearFilter();
+            HasMore = result.Count >= 10;
+            Games.Clear();
+            foreach (Game game in result) { Games.Add(game); }
         }
 
-        // Filtre local par année depuis _allGames
-        private void ApplyYearFilter()
+        private async Task LoadMoreAsync()
         {
-            Games.Clear();
+            if (IsLoadingMore || !HasMore) return;
 
-            IEnumerable<Game> filtered = _allGames;
+            IsLoadingMore = true;
+            ((Command)LoadMoreCommand).ChangeCanExecute();
 
-            if (_activeSort == "year" && !string.IsNullOrWhiteSpace(_yearText) && _yearText.Length == 4)
+            string token = await SecureStorage.GetAsync("auth_token");
+            if (!string.IsNullOrEmpty(token))
             {
-                filtered = _allGames.Where(g => g.ReleaseYear == _yearText);
+                _currentPage++;
+                List<Game> more = await _apiService.GetTrendingAsync(token, _activeSort, page: _currentPage);
+
+                if (more.Count == 0)
+                {
+                    HasMore = false;
+                }
+                else
+                {
+                    _allGames.AddRange(more);
+                    HasMore = more.Count >= 10;
+                    foreach (Game game in more) { Games.Add(game); }
+                }
             }
 
-            foreach (Game game in filtered)
-            {
-                Games.Add(game);
-            }
+            IsLoadingMore = false;
+            ((Command)LoadMoreCommand).ChangeCanExecute();
         }
 
         private async Task SearchGamesAsync()
@@ -131,6 +149,7 @@ namespace TPI_ArcaludoApp.ViewModels
             List<Game> result = await _apiService.SearchGamesAsync(token, _searchText, _activeSort);
 
             _allGames = result;
+            HasMore = false;
             Games.Clear();
             foreach (Game game in result)
             {
@@ -141,13 +160,6 @@ namespace TPI_ArcaludoApp.ViewModels
         private async Task ApplySort(string sort)
         {
             ActiveSort = sort;
-
-            // Réinitialiser le filtre année si on change de tri
-            if (sort != "year")
-            {
-                _yearText = "";
-                OnPropertyChanged(nameof(YearText));
-            }
 
             if (!string.IsNullOrEmpty(_searchText) && _searchText.Length >= 3)
             {

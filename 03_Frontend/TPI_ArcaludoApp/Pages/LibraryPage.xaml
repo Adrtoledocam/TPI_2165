@@ -47,30 +47,13 @@
                         BackgroundColor="{Binding AvenirButtonColor}"
                         TextColor="White" FontSize="13"
                         CornerRadius="100" Padding="16,8" HeightRequest="36" />
-                <Button Text="Année" Command="{Binding SortCommand}"
-                        CommandParameter="year"
-                        BackgroundColor="{Binding YearButtonColor}"
+                <Button Text="A - Z" Command="{Binding SortCommand}"
+                        CommandParameter="az"
+                        BackgroundColor="{Binding AZButtonColor}"
                         TextColor="White" FontSize="13"
                         CornerRadius="100" Padding="16,8" HeightRequest="36" />
             </HorizontalStackLayout>
         </ScrollView>
-
-        <!-- INPUT ANNÉE (visible seulement quand Année est actif) -->
-        <Border Grid.Row="2"
-                IsVisible="{Binding YearInputVisible}"
-                BackgroundColor="#1a1a1a" Stroke="#3A7AFE" StrokeThickness="1"
-                StrokeShape="RoundRectangle 100" Margin="16,0,16,8" MinimumHeightRequest="44">
-            <Grid ColumnDefinitions="Auto,*,Auto" Padding="14,0">
-                <Label Grid.Column="0" Text="📅" FontSize="16" VerticalOptions="Center" />
-                <Entry Grid.Column="1"
-                       Placeholder="Entrez une année (ex: 2023)" PlaceholderColor="#666"
-                       TextColor="White" BackgroundColor="Transparent"
-                       Keyboard="Numeric" MaxLength="4"
-                       Text="{Binding YearText}"
-                       VerticalOptions="Center" MinimumHeightRequest="44" Margin="8,0,0,0" />
-                <Label Grid.Column="2" Text="1900–2031" TextColor="#555" FontSize="11" VerticalOptions="Center" />
-            </Grid>
-        </Border>
 
         <!-- Liste -->
         <CollectionView Grid.Row="3" ItemsSource="{Binding Games}">
@@ -85,6 +68,22 @@
                            HorizontalOptions="Center" />
                 </VerticalStackLayout>
             </CollectionView.EmptyView>
+
+            <!-- Bouton "Charger plus" en pied de liste -->
+            <CollectionView.Footer>
+                <VerticalStackLayout Padding="16,8,16,24">
+                    <Button Text="Charger plus"
+                            Command="{Binding BindingContext.LoadMoreCommand, Source={x:Reference RootPage}}"
+                            IsVisible="{Binding BindingContext.HasMore, Source={x:Reference RootPage}}"
+                            BackgroundColor="#2a2a2a"
+                            TextColor="White" FontSize="14"
+                            CornerRadius="100" HeightRequest="46" />
+                    <Label Text="Chargement..."
+                           IsVisible="{Binding BindingContext.IsLoadingMore, Source={x:Reference RootPage}}"
+                           TextColor="#666" FontSize="13"
+                           HorizontalOptions="Center" Margin="0,8,0,0" />
+                </VerticalStackLayout>
+            </CollectionView.Footer>
 
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Game">

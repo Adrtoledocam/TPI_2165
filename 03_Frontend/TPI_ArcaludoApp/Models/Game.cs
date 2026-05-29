@@ -73,7 +73,7 @@ namespace TPI_ArcaludoApp.Models
         {
             get
             {
-                if (ReleaseDate == null || ReleaseDate.Length < 4) return "";
+                if (ReleaseDate == null || ReleaseDate.Length < 4  ) return "";
                  
                 return ReleaseDate.Substring(0, 4);
             }

@@ -7,7 +7,7 @@ namespace TPI_ArcaludoApp.Tests
     public class GameTests
     {
         [Fact]
-        public void ReleaseYear_ExtractsCorrectlyFromDate()
+        public void ReleaseYear_Extracts()
         {
             // Arrange
             Game game = new Game { ReleaseDate = "2013-09-17" };
@@ -20,20 +20,20 @@ namespace TPI_ArcaludoApp.Tests
         }
 
         [Fact]
-        public void ReleaseYear_ReturnsEmptyStringForInvalidDate()
+        public void ReleaseYear_InvalidDate()
         {
             // Arrange
-            Game game = new Game { ReleaseDate = "InvalidDate" };
+            Game game = new Game { ReleaseDate = "026" };
 
             // Act
             string result = game.ReleaseYear;
 
             // Assert
-            Assert.Equal("Inva", result);
+            Assert.Equal("", result);
         }
 
         [Fact]
-        public void HasNoCover_ReturnsTrueIfCoverUrlIsNull()
+        public void HasNoCover_ReturnsTrue()
         {
             // Arrange
             Game game = new Game { CoverUrl = null };
@@ -46,7 +46,7 @@ namespace TPI_ArcaludoApp.Tests
         }
 
         [Fact]
-        public void HasNoCover_ReturnsFalseIfCoverUrlIsNotNull()
+        public void HasNoCover_ReturnsFalse()
         {
             // Arrange
             Game game = new Game { CoverUrl = "http://example.com/cover.jpg" };

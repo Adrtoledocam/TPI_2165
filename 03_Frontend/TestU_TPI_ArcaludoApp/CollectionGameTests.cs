@@ -6,7 +6,7 @@ namespace TPI_ArcaludoApp.Tests
     public class CollectionGameTests
     {
         [Fact]
-        public void StatusColor_WhenStatusIsAcquis_ReturnsYellow()
+        public void StatusColor_IsAcquis()
         {
             // Arrange
             CollectionGame game = new CollectionGame { ColStatus = "acquis" };
@@ -19,7 +19,7 @@ namespace TPI_ArcaludoApp.Tests
         }
 
         [Fact]
-        public void StatusColor_WhenStatusIsPlaying_ReturnsBlue()
+        public void StatusColor_Playing()
         {
             // Arrange
             CollectionGame game = new CollectionGame { ColStatus = "playing" };
@@ -32,7 +32,7 @@ namespace TPI_ArcaludoApp.Tests
         }
 
         [Fact]
-        public void StatusColor_WhenStatusIsTermine_ReturnsGreen()
+        public void StatusColor_Termine()
         {
             // Arrange
             CollectionGame game = new CollectionGame { ColStatus = "termine" };
@@ -45,7 +45,7 @@ namespace TPI_ArcaludoApp.Tests
         }
 
         [Fact]
-        public void MetacriticDisplay_WhenNull_ReturnsNA()
+        public void MetacriticDisplay_WhenNull()
         {
             // Arrange
             CollectionGame game = new CollectionGame { GamMetacritic = null };
